@@ -38,6 +38,11 @@ big_matrix = data.pivot_table('rating',rows='movie_id',cols='user_id')
 #Create the tuple of index on which we want to optimize our objective function
 list_triplet = DataFrame(data,columns=['user_id','movie_id','rating']).values
 
+# Size of the database (number of ratings)
+n_ratings = list_triplet.shape
+
+
+
 
 
 
