@@ -51,13 +51,43 @@ Systèmes de recommandation}
 \section*{Introduction}
 \addcontentsline{toc}{section}{Introduction}
  
-
 \newpage
 
 
 \section{Présentation du problème et notations}
 
+Le cadre général de la problématique de recommandation est de relier des utilisateurs à des produits. Dans cette partie nous présentons tout d'abord les méthodes les plus utilisées actuellement pour les système de recommandations avant de nous concentrer sur la méthode que nous avons approfondie.
+
 \subsection{Différentes méthodes}
+
+Actuellement, il existe deux principales approches afin de  créer un système de recommandation. La première approche est appelée \textit{content filtering} alors que la seconde est nommée \textit{collaborative filtering}
+
+\subsubsection*{\textit{Content filtering} (ou filtrage par contenu)}
+
+Cette méthode vise à caractériser la nature de chaque utilisateur ainsi que de chaque produit afin d'en dégager un profil le plus précis possible. Pour un utilisateur, cela peut être son pays d'origine, son âge... Pour un produit, par exemple un film, cela peut être son genre, son box-office... Les algorithmes ont alors pour tâche d'associer des profils d'utilisateurs avec des profils de produits. Le projet Music Genome Project, utilisé notamment dans la radio Pandora.com utilise de telles méthodes afin de proposer du contenu aux utilisateurs. Chaque musique est alors caractérisée par des centaines d'attributs assimilable à des "gènes". 
+
+
+\subsubsection*{\textit{Collaborative filtering} (ou filtrage collaboratif)}
+
+L'autre méthode se base essentiellement sur des avis passés (implicites ou explicites) d'utilisateurs à propos de produits. La méthode de \textit{collaborative filtering} analyse les liens qui existent entre utilisateurs et produits via la connaissance de votes passés afin de proposer de nouvelles associations utilisateur/produit. L'avantage principal de cette méthode par rapport à celle de \textit{content filtering} est qu'ici il n'y a nul besoin de connaître le produit ou les utilisateurs à priori. Par contre cette méthode connait le problème du \textit{cold start}, i.e., elle est incapable de traiter l'arrivée d'un nouveau produit ou d'un nouveau utilisateur. Afin de la faire fonctionner il faut posséder un nombre déjà conséquents d'avis de chaque utilisateurs et pour chaque produits.
+
+Dans ce contexte de \textit{collaborative filtering} il existe à nouveau deux principales méthodes. La première est connue sous le nom de \textit{neighborhood method}, la deuxième se concentre autour de \textit{latent factor models}.
+
+\begin{figure}[ht!]
+\begin{center}
+\includegraphics[height=5cm]{fig/neighboor_representation.png}
+\includegraphics[height=5cm]{fig/factor_representation.png}
+\caption{\label{nmet} A gauche : \textit{neighborhood methods}, A droite : \textit{Latent factor models}}
+\end{center}
+\end{figure}
+
+
+\paragraph{\textit{Neighborhood methods}}
+
+
+
+
+\paragraph{\textit{Latent factor model}}
 
 \subsection{Factorisation de matrice}
 
