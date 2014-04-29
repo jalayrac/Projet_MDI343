@@ -1,0 +1,7 @@
+\select@language {french}
+\contentsline {section}{Introduction}{2}
+\contentsline {section}{\numberline {1}Pr\IeC {\'e}sentation du probl\IeC {\`e}me et notations}{3}
+\contentsline {section}{\numberline {2}Algorithmes}{3}
+\contentsline {subsection}{\numberline {2.1}Descente de gradient stochastique simple}{3}
+\contentsline {subsection}{\numberline {2.2}Algorithme parall\IeC {\'e}lis\IeC {\'e} Jellyfish }{3}
+\contentsline {section}{\numberline {3}R\IeC {\'e}sultats}{3}

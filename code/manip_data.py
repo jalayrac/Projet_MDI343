@@ -184,13 +184,13 @@ if __name__=='__main__':
     triplet_test = list_triplet[ind_test,:]
     triplet_train = np.delete(list_triplet,ind_test,0)
     
-#    # Parameters for the strochastic gradient descent    
-#    alpha = 0.1
-#    gamma = 0.1
+#    # Parameters for the stochastic gradient descent    
+    alpha = 0.1
+    gamma = 0.25
 #    
 #    temp_D = time.clock()
-#    print('Gradient descent...')
-#    L,R = simple_sgd(b_u,b_i,mu,triplet_train,alpha,gamma)
+    print('Gradient descent...')
+    L,R = simple_sgd(b_u,b_i,mu,triplet_train,alpha,gamma)
     n_u = index_to_user.shape[0]
     n_i = index_to_movie.shape[0]
     

@@ -73,15 +73,12 @@ def prepare_dataset(size='1m'):
         # Load the datas
         path = '../data/ml-1m/'   
         # Users
-        unames = ['user_id', 'gender', 'age', 'occupation', 'zip']
-        users = pd.read_table(path + 'users.dat', sep='::', header = None,names=unames)  
+#        unames = ['user_id', 'gender', 'age', 'occupation', 'zip']
+#        users = pd.read_table(path + 'users.dat', sep='::', header = None,names=unames)  
         rnames = ['user_id','movie_id', 'rating', 'timestamp']
-        ratings = pd.read_table(path+'ratings.dat', sep = '::', header = None, names = rnames)    
+        data = pd.read_table(path+'ratings.dat', sep = '::', header = None, names = rnames)    
         mnames = ['movie_id', 'title', 'genres']
         movies = pd.read_table(path+'movies.dat', sep ='::', header=None,names=mnames)
-    
-        
-        data = pd.merge(pd.merge(ratings, users) ,movies)
         
         # Creation of the map between index and movie and user id
         # Movies
@@ -108,12 +105,12 @@ def prepare_dataset(size='1m'):
         b_u = mean_ratings_by_user-mu
         b_i = mean_ratings_by_movie-mu
     
-    return data,movies,users,index_to_user,index_to_movie,b_u,b_i,mu
+    return data,movies,index_to_user,index_to_movie,b_u,b_i,mu
 
 def draw2DMovies(R,index_to_movie,movies,dim_x=0,dim_y=1):
 
     plt.figure()    
-    plt.title('Representation des films dans notre epace')
+    plt.title('Representation des films dans notre espace')
     # Find the good movies   
     val_x = R[:,dim_x]
     val_y = R[:,dim_y]
@@ -153,8 +150,8 @@ def displayHisto(t_test,L,R,b_i,b_u,mu):
     
     for r in range(R_tot):
         r_ui = triplet_test[r,2]
-        r_hat_ui_z = mu+b_i[triplet_test[r,1]]+b_u[triplet_test[r,0]]
-        r_hat_ui = r_hat_ui_z+np.dot(L_z[triplet_test[r,0],:],R_z[triplet_test[r,1],:])
+        r_hat_ui_z = mu+b_i[t_test[r,1]]+b_u[t_test[r,0]]
+        r_hat_ui = r_hat_ui_z+np.dot(L[t_test[r,0],:],R[t_test[r,1],:])
         histo.append(abs(r_ui-r_hat_ui))
         histo_z.append(abs(r_ui-r_hat_ui_z))
     
@@ -164,7 +161,7 @@ def displayHisto(t_test,L,R,b_i,b_u,mu):
 
 if __name__=='__main__':
     
-    data,movies,users,index_to_user,index_to_movie,b_u,b_i,mu = prepare_dataset(size='1m')
+    data,movies,index_to_user,index_to_movie,b_u,b_i,mu = prepare_dataset(size='1m')
      
     #Create the tuple of index on which we want to optimize our objective function
     #Note : we sort the values by the user id in order to ease the creation of the 
@@ -185,25 +182,21 @@ if __name__=='__main__':
     triplet_train = np.delete(list_triplet,ind_test,0)
     
 #    # Parameters for the strochastic gradient descent    
-#    alpha = 0.1
-#    gamma = 0.1
+    alpha = 0.1
+    gamma = 0.1
 #    
 #    temp_D = time.clock()
-#    print('Gradient descent...')
-#    L,R = simple_sgd(b_u,b_i,mu,triplet_train,alpha,gamma)
-    n_u = index_to_user.shape[0]
-    n_i = index_to_movie.shape[0]
+    print('Gradient descent...')
+    L,R = simple_sgd(b_u,b_i,mu,triplet_train,alpha,gamma)
+#    n_u = index_to_user.shape[0]
+#    n_i = index_to_movie.shape[0]
+#    L_z = np.random.random([n_u,30])
+#    R_z = np.random.random([n_i,30])    
     
-    L_z = np.random.random([n_u,2])
-    R_z = np.random.random([n_i,2])
-#    
 ##    L,R=jlf.jellyfish(b_u,b_i,mu,triplet_train,alpha,gamma,nb_epochs=13)
 #    temp_total = time.clock()-temp_D
-
-
-
-
-
-
+    displayHisto(triplet_test,L,R,b_i,b_u,mu)
+    draw2DMovies(R,index_to_movie,movies,dim_x=0,dim_y=1)
+    
 
 
