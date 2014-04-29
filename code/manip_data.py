@@ -4,6 +4,8 @@ import numpy as np
 from stochastic_grad_descent import *
 import random
 import time
+import test_jellyfish as jlf
+import pylab
 
 def select_test_set(data,n=1):
     index_user = data.index 
@@ -103,28 +105,32 @@ if __name__=='__main__':
     # Parameters for the strochastic gradient descent    
     alpha = 0.1
     gamma = 0.1
-       
+    
     temp_D = time.clock()
+    print('Gradient descent...')
     L,R = simple_sgd(b_u,b_i,mu,triplet_train,alpha,gamma)
+    
+#    L,R=jlf.jellyfish(b_u,b_i,mu,triplet_train,alpha,gamma,nb_epochs=13)
     temp_total = time.clock()-temp_D
+    print('Time '+str(temp_total))
     RMSE = evaluate_model(b_u,b_i,mu,L,R,triplet_test)
     
-#R_tot = int(triplet_test.shape[0]) 
-#histo = np.array([0])
-#for r in range(R_tot):
-#    r_ui = triplet_test[r,2]
-#    r_hat_ui = mu+b_i[triplet_test[r,1]]+b_u[triplet_test[r,0]]+np.dot(L[triplet_test[r,0],:],R[triplet_test[r,1],:])
-#    #RMSE = RMSE + pow((r_ui-r_hat_ui),2)
-#    histo = np.concatenate((histo,[abs(r_ui-r_hat_ui)]))
-#    RMSE = RMSE + abs(r_ui-r_hat_ui)
+    R_tot = int(triplet_test.shape[0]) 
+    histo = np.array([0])
+    for r in range(R_tot):
+        r_ui = triplet_test[r,2]
+        r_hat_ui = mu+b_i[triplet_test[r,1]]+b_u[triplet_test[r,0]]+np.dot(L[triplet_test[r,0],:],R[triplet_test[r,1],:])
+        #RMSE = RMSE + pow((r_ui-r_hat_ui),2)
+        histo = np.concatenate((histo,[abs(r_ui-r_hat_ui)]))
+        RMSE = RMSE + abs(r_ui-r_hat_ui)
 #    
 #    
 ##RMSE = pow(RMSE,0.5)/R_tot
 #RMSE = RMSE/R_tot
 #
-#x = histo
-#pylab.hist(x, bins=20)
-#pylab.show()
+    x = histo
+    pylab.hist(x, bins=20)
+    pylab.show()
 
 
 
