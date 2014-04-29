@@ -4,7 +4,7 @@ import numpy as np
 #from matplotlib.pyplot import pause
 import random
 
-def simple_sgd(b_u,b_i,mu,triplet,alpha,gamma,norm='att_paper',r=15):
+def simple_sgd(b_u,b_i,mu,triplet,alpha,gamma,norm='att_paper',r=20):
     
     n_u = b_u.shape[0]
     n_i = b_i.shape[0]
