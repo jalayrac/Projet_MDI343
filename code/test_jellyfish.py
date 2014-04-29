@@ -105,6 +105,7 @@ def jellyfish(b_u,b_i,mu,triplet,alpha,gamma,norm='att_paper',r=15,nb_epochs=Non
             for a in range(p):
                 pool[a].join()
         permutp.join()
+        cs=q.get()
         #swap data
         tempi=datau
         tempj=datai
