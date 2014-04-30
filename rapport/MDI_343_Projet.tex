@@ -29,6 +29,8 @@ Systèmes de recommandation}
 \hrulefill
 \vspace{2cm}
 
+\newcommand{\jel}{\textsc{Jellyfish} }
+
 % Si on veut mettre un abstract
 
 %\renewcommand{\abstractname}{Résumé}
@@ -131,8 +133,41 @@ où \textbf{P} va être une fonction de régularisation afin de contrôler la co
 % Parler de la différence entre tirage avec remise ou sans. Quel est l'avantage théorique d'une descente de gradient sto?
 
 
-\subsection{Algorithme parallélisé Jellyfish }
+\subsection{Algorithme parallélisé \jel }
 
+Dans \cite{jelly}, les auteurs introduisent une version parallélisée de l'algorithme SGD, en remarquant qu'un grand nombre d'opérations sont indépendantes et peuvent être réalisées simultanément sans affecter le déroulement de l'algorithme et sans conflit. Cet algorithme, baptisé \jel, est essentiellement similaire à l'algorithme SGD et réalise successivement des opérations atomiques de descente de gradient selon une suite d'indices $(u_k,i_k)$. Outre l'implémentation, la seule différence entre les deux algorithmes repose dans la manière dont ces indices sont tirés.
+
+\subsubsection*{Tirage sans remise}
+
+Les équations de mise à jour \eqref{grad} pour un couple d'indices $(u,i)$ affectent uniquement la $u$-ème ligne de $L$ et la $i$-ème colonne de $R$. Ainsi, deux de ces opérations pour des couples $(u,i)$ et $(u',i')$ tels que $u \neq u'$ et $i \neq i'$ sont totalement indépendantes: elles n'affectent pas les mêmes coefficients et peuvent être réalisées dans n'importe quel ordre, voire simultanément. C'est sur ce principe que repose l'algorithme \jel \cite{jelly}. Pour cela, le tirage des indices se fait \emph{sans remise}, contrairement à l'algorithme du gradient stochastique simple, et nous appellerons \emph{époque} le fait de parcourir une fois l'ensemble des données. Cet algorithme, similaire au gradient stochastique avec remise, a déjà été introduit sous le nom de descente de (sous-)gradient "incrémental" \cite{nedic}. Dans notre contexte, le tirage sans remise est plus une nécessité pratique qu'un véritable choix théorique: il est nécessaire de connaître à chacune de ces époques la séquence complète des indices à traiter afin de pouvoir paralléliser les opérations qui peuvent l'être.
+
+Un véritable tirage sans remise se ferait via la sélection, avec une loi uniforme, d'une permutation sur $\Omega$. Cependant, une telle permutation peut rapidement devenir encombrante en mémoire et gloutonne en temps de calcul. Les auteurs de \jel  choisissent donc de tirer une permutation $\pi_u$ sur les utilisateurs et une permutation $\pi_i$ sur les items, et de sélectionner la permutation sur les couples $(\pi_u,\pi_i)$. Il est évident que l'on est loin de la loi uniforme: par exemple, en admettant que tous les utilisateurs et tous les items sont présents dans $\Omega$, il y a $(n_un_i)!$ permutations possibles sur $\Omega$, tandis qu'il existe seulement $n_u!n_i!$ de la forme $(\pi_u,\pi_i)$, ce qui est bien moindre. Si en pratique on s'attend à ce que cela ne fasse pas une grande différence, cela rend l'éventuelle analyse théorique d'un tel algorithme relativement subtile.
+
+\subsubsection*{Description de l'algorithme}
+
+Comme décrit dans la section précédente, à chaque époque l'algorithme tire uniformément une permutation $\pi_u$ sur les utilisateurs et une permutation $\pi_i$ sur les items. Suivant ces permutations, les données $(u,i) \in \Omega$ sont ensuite rangées dans des \emph{blocs} $C_{a,b}$, $1 \leq a,b \leq p$ de manière à ce qu'entre deux blocs $C_{a,b}$ et $C_{a',b'}$ tels que $a \neq a'$ et $b \neq b'$ toutes les opérations soient indépendantes, c'est-à-dire que pour tout $(u,i) \in C_{a,b}$ et $(u',i') \in C_{a',b'}$, on a $u \neq u'$ et $i \neq i'$. Pour cela, on pose simplement pour chaque couple $(u,i) \in \Omega$:
+
+\begin{equation}\label{index}
+a=\left \lfloor \frac{p}{n_u}(\pi_u(u)-1) \right \rfloor +1 \quad \quad b=\left \lfloor \frac{p}{n_i}(\pi_i(i)-1) \right \rfloor +1
+\end{equation}
+
+Au sein de chaque bloc, une étape de descente de gradient \eqref{grad} est réalisée sur chaque coordonnée. Le tirage sans remise est induit par les permutations: il est possible de traiter les données directement dans l'ordre dans lequel elles ont été "rangées" dans les blocs lorsque l'on parcoure $\Omega$ et que l'on applique \eqref{index}.
+
+Il est possible de traiter en parallèle jusqu'à $p$ blocs ne s'intersectant pas en une \emph{étape}, puis de réaliser $p$ étapes afin de traiter toutes les données. Les blocs sont par exemple groupés selon les $p$ diagonales cycliques (Fig. \ref{blocs}). Ainsi, il est naturel de fixer $p$ au nombre maximum de processus pouvant être lancé (nombre de cœurs d'un processeur pour un ordinateur seul).
+
+\begin{figure}
+\centering
+\includegraphics[width=0.8\textwidth]{fig/blocs}
+\caption{Partition cyclique des blocs (pour question de simplicité, ici $\pi_u$ et $\pi_i$ sont les permutations identités). Les blocs surlignés de la même manière sont traités en parallèle. Schéma issu de \cite{jelly}.}
+\label{blocs}
+\end{figure}
+
+\subsubsection*{Tirage sans remise, le retour}
+Théoriquement, le tirage sans remise n'est pas à préférer au tirage avec remise. Ce dernier possède une vitesse théorique de convergence optimale \cite{jelly}\cite{bottou}, et lors d'un tirage sans remise une époque entière ne garantit nullement une plus grande proximité de la solution qu'après une seule étape de gradient \cite{nedic}. Cependant, plusieurs raisons portent à croire qu'un tirage sans remise est préférable pour des problèmes de taille importante. La plupart des analyses théoriques de l'algorithme de descente de gradient stochastique (avec remise) montrent que les bornes d'optimalité ne font pas intervenir la taille des données, ce qui est avantageux car adapté aux problèmes de grande taille, mais également limitant, le bruit résultant des choix aléatoires réalisés ne pouvant être contourné \cite{bottou}\cite{nedic}. Il est possible qu'en pratique un tirage sans remise évite certains de ces écueils. Intuitivement, une passe sur l'intégralité des données requiert en moyenne $n \log n$ tirages avec remise. Sur un problème de petite taille, le facteur $\log n$ est tout à fait négligeable, mais lorsque $n$ se compte en millions, cela peut résulter en un algorithme des dizaines de fois plus lent; le temps d'exécution s'accroît d'un ordre de grandeur non-négligeable.
+
+Nous notons toutefois qu'il existe une version de l'algorithme extrêmement similaire \cite{gemulla_distri}, où le tirage se fait avec remise à l'intérieur de chaque bloc.
+
+\subsubsection*{Détails d'implémentation}
 
 
 
