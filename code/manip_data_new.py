@@ -75,8 +75,9 @@ def prepare_dataset(size='1m'):
         # Users
 #        unames = ['user_id', 'gender', 'age', 'occupation', 'zip']
 #        users = pd.read_table(path + 'users.dat', sep='::', header = None,names=unames)  
-        rnames = ['user_id','movie_id', 'rating', 'timestamp']
-        data = pd.read_table(path+'ratings.dat', sep = '::', header = None, names = rnames)    
+        rnames = ['user_id','movie_id', 'rating','timestamps']
+        data = pd.read_table(path+'ratings.dat', sep = '::', header = None, names = rnames)   
+        data = data.drop('timestamps',1)
         mnames = ['movie_id', 'title', 'genres']
         movies = pd.read_table(path+'movies.dat', sep ='::', header=None,names=mnames)
         
@@ -104,8 +105,10 @@ def prepare_dataset(size='1m'):
         mu = data.rating.mean()
         b_u = mean_ratings_by_user-mu
         b_i = mean_ratings_by_movie-mu
+        
+        data['rating']=data['rating']-mu-data['user_id'].map(lambda x: b_u[x])-data['movie_id'].map(lambda x: b_i[x])
     
-    return data,movies,index_to_user,index_to_movie,b_u,b_i,mu
+    return data,movies,index_to_user,index_to_movie
 
 def draw2DMovies(R,index_to_movie,movies,dim_x=0,dim_y=1):
 
@@ -142,18 +145,17 @@ def draw2DMovies(R,index_to_movie,movies,dim_x=0,dim_y=1):
     
     plt.show()
 
-def displayHisto(t_test,L,R,b_i,b_u,mu):
+def displayHisto(t_test,L,R):
     
     histo_z = []
     histo= []    
-    R_tot = int(t_test.shape[0])
+    R_tot = int(t_test.shape[0])   
     
     for r in range(R_tot):
         r_ui = triplet_test[r,2]
-        r_hat_ui_z = mu+b_i[t_test[r,1]]+b_u[t_test[r,0]]
-        r_hat_ui = r_hat_ui_z+np.dot(L[t_test[r,0],:],R[t_test[r,1],:])
+        r_hat_ui = np.dot(L[t_test[r,0],:],R[t_test[r,1],:])
         histo.append(abs(r_ui-r_hat_ui))
-        histo_z.append(abs(r_ui-r_hat_ui_z))
+        histo_z.append(abs(r_ui))
     
     
     pylab.hist([histo,histo_z],bins=20,histtype='bar',label=['Estimateur avec optimisation','Estimateur par la moyenne'])
@@ -161,14 +163,17 @@ def displayHisto(t_test,L,R,b_i,b_u,mu):
 
 if __name__=='__main__':
     
-    data,movies,index_to_user,index_to_movie,b_u,b_i,mu = prepare_dataset(size='1m')
-     
+    temp_D = time.clock()
+    triplet,movies,index_to_user,index_to_movie = prepare_dataset(size='1m')
+    temp_F = time.clock()-temp_D
+    
+    print('Temps de preprocessing des donnees')    
+    print(temp_F)
     #Create the tuple of index on which we want to optimize our objective function
     #Note : we sort the values by the user id in order to ease the creation of the 
-    #test and train dataset
-    triplet = DataFrame(data,columns=['user_id','movie_id','rating'])
+    #test and train dataset      
     list_triplet = triplet.sort_index(by='user_id').values
-       
+         
     # Number of ratings by user
     ratings_by_user_cumsum = data.groupby('user_id').size().cumsum()  
     # Size of the database (number of ratings)
@@ -181,22 +186,22 @@ if __name__=='__main__':
     triplet_test = list_triplet[ind_test,:]
     triplet_train = np.delete(list_triplet,ind_test,0)
     
-#    # Parameters for the strochastic gradient descent    
+#    # Parameters for the stochastic gradient descent    
     alpha = 0.1
     gamma = 0.1
 #    
 #    temp_D = time.clock()
-    print('Gradient descent...')
-    L,R = simple_sgd(b_u,b_i,mu,triplet_train,alpha,gamma)
-#    n_u = index_to_user.shape[0]
-#    n_i = index_to_movie.shape[0]
-#    L_z = np.random.random([n_u,30])
-#    R_z = np.random.random([n_i,30])    
+#    print('Gradient descent...')
+#    L,R = simple_sgd(triplet_train,alpha,gamma)
+    n_u = index_to_user.shape[0]
+    n_i = index_to_movie.shape[0]
+    L_z = np.random.random([n_u,30])
+    R_z = np.random.random([n_i,30])    
     
-##    L,R=jlf.jellyfish(b_u,b_i,mu,triplet_train,alpha,gamma,nb_epochs=13)
+##    L,R=jlf.jellyfish(triplet_train,alpha,gamma,nb_epochs=13)
 #    temp_total = time.clock()-temp_D
-    displayHisto(triplet_test,L,R,b_i,b_u,mu)
-    draw2DMovies(R,index_to_movie,movies,dim_x=6,dim_y=9)
+    displayHisto(triplet_test,L_z,R_z)
+    draw2DMovies(R_z,index_to_movie,movies,dim_x=6,dim_y=9)
     
 
 
