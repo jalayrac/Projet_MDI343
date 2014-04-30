@@ -1,0 +1,28 @@
+\begin{thebibliography}{1}
+
+\bibitem{jelly}
+Benjamin Recht and Christopher R{\'{e}}.
+\newblock {Parallel Stochastic Gradient Algorithms for Large-Scale Matrix
+  Completion}.
+\newblock {\em submitted}, 2011.
+
+\bibitem{nedic}
+Angelia Nedic and Dimitri Bertsekas.
+\newblock Convergence rate of incremental subgradient algorithms.
+\newblock In {\em Stochastic Optimization: Algorithms and Applications}, pages
+  263--304. Kluwer, 2000.
+
+\bibitem{bottou}
+Léon Bottou and Olivier Bousquet.
+\newblock The tradeoffs of large scale learning.
+\newblock In {\em IN: ADVANCES IN NEURAL INFORMATION PROCESSING SYSTEMS 20},
+  pages 161--168, 2008.
+
+\bibitem{gemulla_distri}
+Rainer Gemulla, Erik Nijkamp, Peter~J. Haas, and Yannis Sismanis.
+\newblock Large-scale matrix factorization with distributed stochastic gradient
+  descent.
+\newblock In Chid Apté, Joydeep Ghosh, and Padhraic Smyth, editors, {\em KDD},
+  pages 69--77. ACM, 2011.
+
+\end{thebibliography}

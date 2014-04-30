@@ -190,14 +190,14 @@ if __name__=='__main__':
 #    
 #    temp_D = time.clock()
     print('Gradient descent...')
-    L,R = simple_sgd(b_u,b_i,mu,triplet_train,alpha,gamma)
+    L,R,obj = simple_sgd(b_u,b_i,mu,triplet_train,alpha,gamma)
     n_u = index_to_user.shape[0]
     n_i = index_to_movie.shape[0]
     
     L_z = np.random.random([n_u,2])
     R_z = np.random.random([n_i,2])
 #    
-##    L,R=jlf.jellyfish(b_u,b_i,mu,triplet_train,alpha,gamma,nb_epochs=13)
+##    L,R,obj=jlf.jellyfish(b_u,b_i,mu,triplet_train,alpha,gamma,nb_epochs=13)
 #    temp_total = time.clock()-temp_D
 
 
