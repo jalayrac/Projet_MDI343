@@ -1,5 +1,10 @@
 \begin{thebibliography}{1}
 
+\bibitem{koren}
+Yehuda Koren, Robert Bell, and Chris Volinsky.
+\newblock Matrix factorization techniques for recommender systems.
+\newblock {\em Computer}, 42(8):30--37, August 2009.
+
 \bibitem{bottouSGD}
 Léon Bottou.
 \newblock Large-scale machine learning with stochastic gradient descent.

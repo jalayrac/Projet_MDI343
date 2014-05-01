@@ -158,9 +158,10 @@ def displayHisto(t_test,L,R):
         histo.append(abs(r_ui-r_hat_ui))
         histo_z.append(abs(r_ui))
     
-    
+    pylab.figure()
     pylab.hist([histo,histo_z],bins=20,histtype='bar',label=['Estimateur avec optimisation','Estimateur par la moyenne'])
     pylab.legend()
+    pylab.savefig('hist.eps')
 
 if __name__=='__main__':
     
@@ -196,7 +197,7 @@ if __name__=='__main__':
     
 #    # Parameters for the stochastic gradient descent    
     alpha = 0.1
-    gamma = 0.1
+    gamma = 0.09
 #    
     temp_D = time.clock()
     print('Gradient descent...')
@@ -207,13 +208,45 @@ if __name__=='__main__':
     print('Temps de de descente de gradient stochastique :')
     print(temp_T)
     
-#    L_z = np.zeros([n_u,30])
-#    R_z = np.zeros([n_i,30])    
+    L_z = np.zeros([n_u,30])
+    R_z = np.zeros([n_i,30])    
     
 ##    L,R=jlf.jellyfish(triplet_train,alpha,gamma,nb_epochs=13)
 #    temp_total = time.clock()-temp_D
     displayHisto(triplet_test,L,R)
-    draw2DMovies(R_z,index_to_movie,movies,dim_x=6,dim_y=9)
+    draw2DMovies(R,index_to_movie,movies,dim_x=6,dim_y=9)
     
     a = evaluate_model(L,R,triplet_test)
-    
+#    
+#    # Plot the interesting graphic
+#    index_note = np.arange(1,6)
+#    count = np.zeros([5,2])
+#    notes = DataFrame(count,index=index_note,columns=['BON','MAUVAIS'])
+#    
+#    for r in data_test.index:
+#        r_pred = round(mu + b_u[data_test.user_id.values[r]] + b_i[data_test.movie_id.values[r]] + X[data_test.user_id.values[r],data_test.movie_id.values[r]])       
+#        r_pred = min(5,r_pred)
+#        r_pred = max(1,r_pred)
+#        r_true = round(data_test.rating.values[r])
+#        if r_pred==r_true:
+#            notes.BON[r_true]+=1
+#        else:
+#            notes.MAUVAIS[r_pred]+=1
+#        
+#    index_note = np.arange(1,6)
+#    count = np.zeros([5,2])
+#    notes_naif = DataFrame(count,index=index_note,columns=['BON','MAUVAIS'])
+#    
+#    for r in data_test.index:
+#        r_pred = round(mu + b_u[data_test.user_id.values[r]] + b_i[data_test.movie_id.values[r]])       
+#        r_pred = min(5,r_pred)
+#        r_pred = max(1,r_pred)
+#        r_true = round(data_test.rating.values[r])
+#        if r_pred==r_true:
+#            notes_naif.BON[r_true]+=1
+#        else:
+#            notes_naif.MAUVAIS[r_pred]+=1
+#    
+#    notes_naif_prop = notes_naif.div(notes_naif.sum(1),axis=0)
+#    notes_prop = notes.div(notes.sum(1),axis=0)
+

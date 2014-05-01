@@ -11,3 +11,6 @@
 \contentsline {section}{\numberline {3}R\IeC {\'e}sultats}{8}
 \contentsline {subsection}{\numberline {3.1}Comparaison des deux algorithmes}{8}
 \contentsline {subsection}{\numberline {3.2}R\IeC {\'e}sultats sur la base de donn\IeC {\'e}es de films}{8}
+\contentsline {paragraph}{RMSE}{9}
+\contentsline {paragraph}{Histogramme d'erreur}{9}
+\contentsline {paragraph}{Affichage des facteurs latents}{9}

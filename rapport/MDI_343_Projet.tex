@@ -10,10 +10,11 @@
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 \usepackage{cite}
-
+\usepackage{epsfig}
 
 
 \renewcommand{\headrulewidth}{1pt}
+
 \fancyhead[R]{} 
 \fancyhead[L]{\textit{\leftmark}}
 
@@ -31,7 +32,7 @@ Systèmes de recommandation}
 \vspace{2cm}
 
 \newcommand{\jel}{\textsc{Jellyfish} }
-
+\renewcommand{\tablename}{TABLEAU}
 % Si on veut mettre un abstract
 
 %\renewcommand{\abstractname}{Résumé}
@@ -54,6 +55,13 @@ Systèmes de recommandation}
 \section*{Introduction}
 \addcontentsline{toc}{section}{Introduction}
  
+ Le challenge Netflix a mis en avant la problématique de créer de bons systèmes de recommandations. A l'heure où l'on est en mesure d'agréger énormément d'informations sur les utilisateurs, leurs préférences, leurs attitudes, il est légitime de se demander s'il est possible de traiter ces données afin d'améliorer l'expérience de l'utilisateur en lui proposant des produits qui vont lui plaire.
+ 
+ Dans ce contexte beaucoup de méthodes ont été mises à l'épreuve afin de créer le système de recommandation le plus performant. Les techniques de factorisation de matrice se sont démarquées et ont notamment permis à l'équipe \textit{BellKor's Pragmatic Chaos} de remporter le prix d'un million de dollar décerné par Netflix \cite{koren}.
+ 
+ On s'intéresse ici aux méthodes mathématiques et algorithmiques qui permettent de traiter efficacement un grand ensemble de notations afin de prédire les préférences d'utilisateurs pour des films.
+ 
+ Dans un premier temps nous présenterons le problème et son cadre mathématique. Nous introduirons ensuite les algorithmes que nous avons implémenté afin de résoudre numériquement le problème. Enfin nous commenterons nos résultats en gardant en tête l'objectif de recommandation.
 \newpage
 
 
@@ -240,9 +248,93 @@ Le premier point important est de constituer une base de test afin d'évaluer no
 
 \subsubsection*{Critère d'évaluation}
 
+\paragraph{RMSE}
 
-Afin d'évaluer la pertinence de notre algorithme nous avons regardé plusieurs critères. 
+Afin d'évaluer la pertinence de notre algorithme nous avons regardé plusieurs facteurs. Le premier critère chiffrée est le RMSE (pour \textit{Root Mean Square Error}):
 
+$$ \text{RMSE} = \sqrt{\frac{1}{|\Omega_{\text{test}|}}\sum_{(u,i)\in \Omega_{\text{test}}} |X_{ui}+b_{ui}-M_{ui}|^2} $$
+
+Par rapport à la simple erreur moyenne, ce critère permet de pénaliser plus les erreurs qui sont vraiment loin de la  valeur attendue. On accepte avec une bonne tolérance qu'un algorithme se trompe d'un point sur une note de 5, par contre on sera totalement insatisfait si l'algorithme se trompe de 3 points. Le rapport de mécontentement n'étant pas linéaire, ce critère est plus pertinent que la simple erreur moyenne.
+
+
+Nous avons aussi choisi ce critère parce qu'il est le critère d'évaluation du challenge Netflix. Pour information sur la base de test Netflix le RMSE avec le prédicteur naïf par la moyenne est de 1.02. Avant la compétition Netflix parvenait à un RMSE de 0.95. Après plusieurs années de compétition le RMSE est passée à 0.85. Il est important de garder cela en tête lorsque nous comparerons les résultats de notre algorithme avec ceux du prédicteur naïf. Ce critère sera donc utile pour comparer différents paramètres, ou la performance des deux algorithmes étudiés ici. 
+
+ Sur notre base de test, le RMSE "naïf" est de 0.9598.
+
+\paragraph{Histogramme d'erreur} Afin de visualiser mieux ce que peut représenter le chiffre précédent, nous avons affiché l'histogramme des erreurs en comparant un résultat de notre algorithme avec le prédicteur naïf par la moyenne. Un exemple d'un tel histogramme est donnée en Figure \ref{histo_best}.
+
+\paragraph{Affichage des facteurs latents}
+
+Enfin un dernier critère d'évaluation a été d'essayer de visualiser la pertinence attendue des facteur latents. Pour cela nous avons reproduits des figures similaires à la Figure \ref{nmet}, en représentant des films en deux dimensions répartis aux extrêmes dans l'espace des facteurs latents. Cependant il faut d'ores et déjà savoir que tout les facteurs latents ne seront pas facilement interprétables en termes de genre cinématographique, de box office...
+
+\subsubsection*{Résultats}
+
+Dans le Tableau \ref{RMSE_vs_r} on donne le RMSE obtenu pour différentes valeurs de $r$. On rappelle que $r$ est le rang de la matrice $X$, ou encore la dimension de l'espace des facteurs latents. On rappelle aussi que ce résultat est à comparer au RMSE naïf qui vaut $0.9598$.
+
+\begin{table}[h]
+\begin{center}
+   \begin{tabular}{|c|c|c|c|c|c|c|}
+  	\hline
+  	\textbf{Dimension $r$} & \multicolumn{2}{c|}{10} & \multicolumn{2}{c|}{50} & \multicolumn{2}{c|}{100} \\
+  	\hline
+  	\textbf{Algorithme} & SGD & \jel & SGD & \jel & SGD & \jel \\
+  	\hline
+  	\textbf{RMSE} &  &  & 0.9114 & & 0.9042 &\\
+  	\hline
+\end{tabular}
+\end{center}
+\caption{\label{RMSE_vs_r} Valeurs du RMSE pour différentes valeurs de $r$}
+\end{table}
+
+En Figure \ref{histo_best}, on donne l'histogramme des erreurs obtenu pour le plus bas RMSE. En bleu, on visualise les prévisions de notre algorithme d'optimisation et en vert on peut voir les prédictions de la moyenne simple ($\textbf{X}=0$). 
+
+% A remplacer par le meilleur!
+
+
+%\begin{figure}
+% \begin{minipage}[b]{.46\linewidth}
+%  \centering\epsfig{figure=fig/hist.eps,height=5cm}
+%  \caption{Histogramme d'erreur \label{histo_best}}
+% \end{minipage} \hfill
+% \begin{minipage}[b]{.46\linewidth}
+%  \centering\epsfig{figure=fig/graph_best.eps,height=5cm}
+%  \caption{Part de bonnes prédictions \label{graph_best}}
+% \end{minipage}
+%\end{figure}
+
+\begin{figure}[ht!]
+\begin{center}
+\includegraphics[height=5cm]{fig/hist.eps}
+\caption{\label{histo_best} Histogramme d'erreur}
+\end{center}
+\end{figure}
+
+
+En Figure \ref{graph_best} on donne pour chaque note (comprise entre 1 et 5) la proportion de notes où notre algorithme ne s'est pas trompé pour le meilleur RMSE. En comparaison on donne aussi la prédiction de l'algorithme naïf. Ce graphique permet une visualisation un peu plus parlante des résultats de notre algorithme en vue de créer un système de recommandation. 
+
+\begin{figure}[ht!]
+\begin{center}
+\includegraphics[height=5cm]{fig/graph_best.eps}
+\caption{\label{graph_best} Proportion de bonnes prédiction en fonction de chaque note}
+\end{center}
+\end{figure}
+
+
+\subsubsection*{Espace des facteur latents}
+
+Nous voyons dans le tableau \ref{RMSE_vs_r}, que la performance de notre algorithme augmente avec $r$, du moins au début (nous n'avons pas testé avec des $r$ trop grand mais le risque ensuite devient l'overfitting). Il est alors intéressant de se pencher sur les espaces engendrés par notre algorithme. 
+
+% Blabla avec figure!
+
+\subsubsection*{Commentaires}
+
+Dans cette partie nous apportons un regard critique sur les résultats présentés précédemment en essayant de replacer cela dans le contexte de la recommandation. 
+
+% Partie positive
+Comme nous pouvons le voir dans le tableau \ref{RMSE_vs_r}, notre algorithme parvient à battre la méthode naïve qui reviendrait à prédire n'importe quelle note par la moyenne des notes passées. De plus dans le but de réaliser un algorithme de recommandation on a envie que notre algorithme prédise de manière efficace surtout les notes extrêmes afin, d'une part de proposer des produits à l'utilisateur dont on est sûr qu'ils vont plaire, et d'autre part d'être en mesure de bien prévoir ce que l'utilisateur va détester. En ce sens le graphique de la Figure \ref{graph_best} est intéressant parce qu'on voit que notre algorithme est bien plus efficace que la méthode naïve pour ce qui est de prédire les notes extrêmes. Pour la note 5, nous avons 74 $\%$ de bonnes prédictions avec notre méthode contre 59 $\%$ pour la méthode naïve. Pour la note 1 nous avons 82 $\%$ de bonnes prédictions avec notre approche contre 56 $\%$ pour la prédiction par la moyenne. En ce sens nous pouvons dire que l'approche étudiée ici fonctionne assez bien pour faire de la recommandation. Il semblerait donc que l'on réussisse à capter de l'information sur les goûts et les préférence des utilisateurs.
+
+%Partie négative
+Cependant on est aussi en droit de se demander si, du point de vue de l'utilisateur, l'amélioration de prédiction est réellement intéressante. En reprenant l'exemple du projet Netflix, on peut noter que la bonne prédiction de notes au dessus de 3 étoiles est de 98.9 $\%$ pour l'algorithme qui a décroché le prix de 1 million de dollar contre 94.4 $\%$ pour l'algorithme naïf. On peut alors se demander si l'amélioration de l'expérience de l'utilisateur est vraiment intéressante. Beaucoup de progrès reste encore à faire afin de comprendre et de modéliser les goûts humains. Cette idée permet de relativiser quant aux résultats modestes de nos algorithmes.
 
 \section*{Conclusion}
 

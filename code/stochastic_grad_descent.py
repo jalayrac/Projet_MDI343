@@ -4,7 +4,7 @@ import numpy as np
 #from matplotlib.pyplot import pause
 import random
 
-def simple_sgd(n_u,n_i,triplet,alpha,gamma,norm='att_paper',r=50):
+def simple_sgd(n_u,n_i,triplet,alpha,gamma,norm='att_paper',r=10):
     
     # Prepare the factorization matrix
     L = np.random.random([n_u,r])
