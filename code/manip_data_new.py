@@ -23,16 +23,15 @@ def select_test_set(data,n=1):
            
     return sel_ind
     
-def evaluate_model(b_u,b_i,mu,L,R,triplet):
+def evaluate_model(L,R,triplet):
     RMSE = 0   
     R_tot = int(triplet.shape[0])    
     for r in range(R_tot):
-        r_ui = triplet[r,2]
-        r_hat_ui = mu+b_i[triplet[r,1]]+b_u[triplet[r,0]]+np.dot(L[triplet[r,0],:],R[triplet[r,1],:])
-       # RMSE = RMSE + pow((r_ui-r_hat_ui),2)
-        RMSE = RMSE + abs(r_ui-r_hat_ui)
-    #RMSE = pow(RMSE,0.5)/R_tot
-    RMSE = RMSE/R_tot
+        e_ui = triplet[r,2]-np.dot(L[triplet[r,0],:],R[triplet[r,1],:]) 
+        RMSE = RMSE + pow(e_ui,2)
+       # RMSE = RMSE + abs(r_ui-r_hat_ui)
+    RMSE = pow(RMSE/R_tot,0.5)
+    #RMSE = RMSE/R_tot
     return RMSE
 
 def prepare_dataset(size='1m'):
@@ -41,11 +40,11 @@ def prepare_dataset(size='1m'):
         #Load the datas
         path = '../data/ml-10m/ml-10M100K/'
         rnames = ['user_id','movie_id', 'rating', 'timestamp']
-        ratings = pd.read_table(path+'ratings.dat', sep = '::', header = None, names = rnames)
+        data = pd.read_table(path+'ratings.dat', sep = '::', header = None, names = rnames)
+        data = data.drop('timestamps',1)        
         mnames = ['movie_id', 'title', 'genres']
         movies = pd.read_table(path+'movies.dat', sep ='::', header=None,names=mnames)
         
-        data = pd.merge(ratings,movies)
         movie_id_val = data.movie_id.unique()
         movie_id_val.sort()
         movie_to_index = Series(np.arange(data.movie_id.unique().size),index=movie_id_val)
@@ -68,6 +67,8 @@ def prepare_dataset(size='1m'):
         b_u = mean_ratings_by_user-mu
         b_i = mean_ratings_by_movie-mu
         
+        data['rating']=data['rating']-mu-data['user_id'].map(lambda x: b_u[x])-data['movie_id'].map(lambda x: b_i[x])
+
         
     if size=='1m':
         # Load the datas
@@ -175,16 +176,23 @@ if __name__=='__main__':
     list_triplet = triplet.sort_index(by='user_id').values
          
     # Number of ratings by user
-    ratings_by_user_cumsum = data.groupby('user_id').size().cumsum()  
+    ratings_by_user_cumsum = triplet.groupby('user_id').size().cumsum()  
     # Size of the database (number of ratings)
     
     #Learning Part
     
     #Create an index to choose a test set
-    n_movie_by_user = 2
-    ind_test = select_test_set(ratings_by_user_cumsum,n=n_movie_by_user)   
+#    n_movie_by_user = 2
+#    ind_test = select_test_set(ratings_by_user_cumsum,n=n_movie_by_user)   
+   
+   # Load the test index
+    ind_test = np.loadtxt('indice_test',dtype=int)
+        
     triplet_test = list_triplet[ind_test,:]
     triplet_train = np.delete(list_triplet,ind_test,0)
+    
+    
+    
     
 #    # Parameters for the stochastic gradient descent    
     alpha = 0.1
@@ -195,13 +203,13 @@ if __name__=='__main__':
 #    L,R = simple_sgd(triplet_train,alpha,gamma)
     n_u = index_to_user.shape[0]
     n_i = index_to_movie.shape[0]
-    L_z = np.random.random([n_u,30])
-    R_z = np.random.random([n_i,30])    
+    L_z = np.zeros([n_u,30])
+    R_z = np.zeros([n_i,30])    
     
 ##    L,R=jlf.jellyfish(triplet_train,alpha,gamma,nb_epochs=13)
 #    temp_total = time.clock()-temp_D
     displayHisto(triplet_test,L_z,R_z)
     draw2DMovies(R_z,index_to_movie,movies,dim_x=6,dim_y=9)
     
-
-
+    a = evaluate_model(L_z,R_z,triplet_test)
+    

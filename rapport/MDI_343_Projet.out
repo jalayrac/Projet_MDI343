@@ -1,0 +1,8 @@
+\BOOKMARK [1][-]{section*.2}{Introduction}{}% 1
+\BOOKMARK [1][-]{section.1}{Pr\351sentation du probl\350me et notations}{}% 2
+\BOOKMARK [2][-]{subsection.1.1}{Diff\351rentes m\351thodes}{section.1}% 3
+\BOOKMARK [2][-]{subsection.1.2}{Factorisation de matrice et notations}{section.1}% 4
+\BOOKMARK [1][-]{section.2}{Algorithmes}{}% 5
+\BOOKMARK [2][-]{subsection.2.1}{Descente de gradient stochastique}{section.2}% 6
+\BOOKMARK [2][-]{subsection.2.2}{Algorithme parall\351lis\351 Jellyfish }{section.2}% 7
+\BOOKMARK [1][-]{section.3}{R\351sultats}{}% 8

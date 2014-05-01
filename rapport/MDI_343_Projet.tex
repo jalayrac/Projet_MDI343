@@ -12,6 +12,7 @@
 \usepackage{cite}
 
 
+
 \renewcommand{\headrulewidth}{1pt}
 \fancyhead[R]{} 
 \fancyhead[L]{\textit{\leftmark}}
@@ -179,9 +180,9 @@ Le processus stochastique des exemples tirés au cours des itérations de l'algo
 
 Ici les tirages sont fait avec remise. De la sorte, en espérant que l'ensemble d'apprentissage est assez riche au sens de la distribution qu'il vise à représenter, on peut considérer qu'à chaque itération, les exemples sont tirés en suivant la véritable distribution des données. Intuitivement, on s'attend alors bien à ce que l'agrégation de toutes ces gradients ponctuels \eqref{grad} se comportent comme la moyenne (gradient total).
 
-Des résultats de convergences ont été prouvés en supposant que le pas d'incrément $\gamma_t$ décroit suffisamment au cours des itérations. Le théorème de Robbins-Siegmund (1971) permet notamment de prouver la convergence presque sure de la méthode avec des hypothèses assez lâche.
+Des résultats de convergences ont été prouvés en supposant que le pas d'incrément $\gamma_t$ décroit suffisamment au cours des itérations. Le théorème de Robbins-Siegmund (1971) permet notamment de prouver la convergence presque sure de la méthode avec des hypothèses assez lâches.
 
-Dans ce qui suit nous présentons une méthode qui permet de paralléliser cet algorithme afin de gagner du temps de calcul. On verra aussi que la méthode de tirage des exemples différent quelque peu de la méthode présentée ici. On s'efforcera alors de comparer ces deux méthodes.
+Dans ce qui suit nous présentons une méthode qui permet de paralléliser cet algorithme afin de gagner du temps de calcul. On verra aussi que la méthode de tirage des exemples diffère de la méthode présentée ici. On s'efforcera alors de comparer ces deux méthodes.
 
 \subsection{Algorithme parallélisé \jel }
 
@@ -224,8 +225,23 @@ Nous notons toutefois qu'il existe une version de l'algorithme extrêmement simi
 
 \section{Résultats}
 
+Nous présenterons nos résultats sous deux aspects. La première partie concernera la comparaison entre les deux algorithmes précédents en termes de précision par rapport à la fonction objectif et en termes de temps de calcul. On reviendra aussi sur la différence entre le tirage avec remise et sans remise.
+
+ Dans la deuxième partie nous commenterons en détails les résultats obtenus sur la base de données du GroupLens Research \footnote{http://grouplens.org/datasets/movielens/}. Les résultats seront présentés sur la base de données qui comprend 1 million de notations de 6000 utilisateurs pour 4000 films. 
+
+\subsection{Comparaison des deux algorithmes}
+% Le nom peut changer :) 
 
 
+\subsection{Résultats sur la base de données de films}
+% Il faudra aussi parler des différents paramètres r...
+
+Le premier point important est de constituer une base de test afin d'évaluer notre algorithme. Lors de la constitution de cette base de tests, il faut prendre soin de ne pas retirer toutes les notes d'un même utilisateur ou toutes les notes d'un même film. Dans le cas contraire on perd toute l'information sur cet utilisateur ou sur ce film. La stratégie que nous avons adopté est de retirer $n$ notes par utilisateurs en espérant que toutes les notes d'un même film ne soient pas retirées (une vérification avant chaque test est nécessaire). En pratique $n=1,2$, ce qui nous permet d'avoir une base de test assez conséquente.
+
+\subsubsection*{Critère d'évaluation}
+
+
+Afin d'évaluer la pertinence de notre algorithme nous avons regardé plusieurs critères. 
 
 
 \section*{Conclusion}
