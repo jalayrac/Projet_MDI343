@@ -4,10 +4,8 @@ import numpy as np
 #from matplotlib.pyplot import pause
 import random
 
-def simple_sgd(triplet,alpha,gamma,norm='att_paper',r=50):
+def simple_sgd(n_u,n_i,triplet,alpha,gamma,norm='att_paper',r=50):
     
-    n_u = triplet['user_id'].unique().size
-    n_i = triplet['movie_id'].unique().size
     # Prepare the factorization matrix
     L = np.random.random([n_u,r])
     R = np.random.random([n_i,r])
