@@ -1,5 +1,18 @@
 \begin{thebibliography}{1}
 
+\bibitem{bottouSGD}
+Léon Bottou.
+\newblock Large-scale machine learning with stochastic gradient descent.
+\newblock In Yves Lechevallier and Gilbert Saporta, editors, {\em Proceedings
+  of the 19th International Conference on Computational Statistics
+  (COMPSTAT'2010)}, pages 177--187, Paris, France, August 2010. Springer.
+
+\bibitem{bottou}
+Léon Bottou and Olivier Bousquet.
+\newblock The tradeoffs of large scale learning.
+\newblock In {\em IN: ADVANCES IN NEURAL INFORMATION PROCESSING SYSTEMS 20},
+  pages 161--168, 2008.
+
 \bibitem{jelly}
 Benjamin Recht and Christopher R{\'{e}}.
 \newblock {Parallel Stochastic Gradient Algorithms for Large-Scale Matrix
@@ -11,12 +24,6 @@ Angelia Nedic and Dimitri Bertsekas.
 \newblock Convergence rate of incremental subgradient algorithms.
 \newblock In {\em Stochastic Optimization: Algorithms and Applications}, pages
   263--304. Kluwer, 2000.
-
-\bibitem{bottou}
-Léon Bottou and Olivier Bousquet.
-\newblock The tradeoffs of large scale learning.
-\newblock In {\em IN: ADVANCES IN NEURAL INFORMATION PROCESSING SYSTEMS 20},
-  pages 161--168, 2008.
 
 \bibitem{gemulla_distri}
 Rainer Gemulla, Erik Nijkamp, Peter~J. Haas, and Yannis Sismanis.

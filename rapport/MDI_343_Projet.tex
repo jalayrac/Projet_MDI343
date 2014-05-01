@@ -104,13 +104,13 @@ Nous allons voir qu'une méthode afin de calculer ces facteur latents est de fac
 
 L'idée va alors être de trouver une matrice $\textbf{X}$ qui va être \textit{proche dans un certain sens} de l'information contenue dans la matrice $\textbf{M}$ et qui va pouvoir s'écrire de manière factorisé :
 
-$$ \textbf{X} = LR^* $$
+$$ \textbf{X} = LR $$
 
-où $L \in \mathbb{R}^{n_u\times r}$ et $R \in \mathbb{R}^{n_i\times r}$ où $r$ est le nombre de facteurs latents que l'on recherche. Ainsi la ligne $u$ (resp. $i$) de la matrice $L$ (resp. $R$) va représenter la position dans l'espace des facteurs latents de l'utilisateur $u$ (resp. produit $i$). Le produit scalaire de ces deux vecteurs va donc représenter la propension de l'utilisateur $u$ a aimé le produit $i$. 
+où $L \in \mathbb{R}^{n_u\times r}$ et $R \in \mathbb{R}^{r\times n_i}$ où $r$ est le nombre de facteurs latents que l'on recherche. Ainsi la ligne $u$ (resp. la colonne $i$) de la matrice $L$ (resp. $R$) va représenter la position dans l'espace des facteurs latents de l'utilisateur $u$ (resp. produit $i$). Le produit scalaire de ces deux vecteurs va donc représenter la propension de l'utilisateur $u$ a aimé le produit $i$. 
 
-Maintenant essayons de décrire de manière plus mathématique la notion de \textit{proche dans un certain sens de l'information contenue dans $\textbf{M}$}. Il va donc falloir déterminer une fonction de coût $f$ d'attaches aux données sur la matrice $\textbf{X}$ en vue de se ramener à un problème classique d'optimisation. Une première idée serait de se dire que l'on pourrait écrire $f$ comme étant la somme des écarts quadratiques entre $X_{ui}$ et la note $M_{ui}$. On aurait alors :
+Maintenant essayons de décrire de manière plus mathématique la notion de \textit{proche dans un certain sens de l'information contenue dans $\textbf{M}$}. Il va donc falloir déterminer une fonction de coût $f$ d'attaches aux données sur la matrice $\textbf{X}$ en vue de se ramener à un problème classique d'optimisation. Une première idée serait de se dire que l'on pourrait écrire $f$ comme étant la moyenne empirique des écarts quadratiques entre $X_{ui}$ et la note $M_{ui}$. On aurait alors :
 
-$$ f(\textbf{X}) = \sum_{(i,j)\in\Omega}\Vert X_{ui}-M_{ui} \Vert^2 $$
+$$ f(\textbf{X}) = \frac{1}{| \Omega |}\sum_{(u,i)\in\Omega}\Vert X_{ui}-M_{ui} \Vert^2 $$
 
 Cependant, avec cette représentation, on ne prend pas en compte le biais naturel qui existe dans nos données. En effet il est important de pouvoir modéliser le fait que certains utilisateurs sont plus sévères que d'autres pour noter les produits ou encore que certains produits sont parfois beaucoup mieux noté que la moyenne. Sans prendre en compte cela il devient difficile de modéliser les notes par un simple produit scalaire comme nous voulions le faire plus haut. Au lieu de représenter directement la note obtenue, on va préférer que le produit scalaire $X_{ui}$ représente l'écart à la note obtenue conte tenu du biais $b_{ui}$ que nous connaissons sur nos données :
 
@@ -118,20 +118,70 @@ $$b_{ui} = \mu + b_u  + b_i $$
 
 où $\mu$ est la moyenne totale des notes, $b_u$ est la moyenne des notes décernés par l'utilisateur $u$, et $b_i$ est la moyenne des notes obtenues par le produit $i$. Tel quel $b_{ui}$ est déjà une sorte d'estimateur de la note que va mettre l'utilisateur $u$ au produit $i$. On verra dans la suite qu'il peut être intéressant de comparer nos résultats à ce système de recommandation très naïf. Ainsi on va réécrire notre fonction de coût d'attache aux données:
 
-$$ f(\textbf{X}) = \sum_{(i,j)\in\Omega}\Vert X_{ui}+\mu + b_u  + b_i-M_{ui} \Vert^2 $$
+$$ f(\textbf{X}) = \frac{1}{| \Omega |}\sum_{(u,i)\in\Omega}\Vert X_{ui}+\mu + b_u  + b_i-M_{ui} \Vert^2 $$
 
-Finalement notre problème de détermination de facteur latents peut s'écrire d la manière suivante :
+Finalement notre problème de détermination de facteur latents peut s'écrire de la manière suivante :
 
-$$ \text{minimiser } \sum_{(i,j)\in\Omega}\Vert X_{ui}+\mu + b_u  + b_i-M_{ui} \Vert^2 + P(\textbf{X}) $$
+\begin{equation}
+\label{objectif}
+ \text{minimiser } \frac{1}{| \Omega |}\sum_{(u,i)\in\Omega}\Vert X_{ui}+\mu + b_u  + b_i-M_{ui} \Vert^2 + P(\textbf{X})
+\end{equation}
 
-où \textbf{P} va être une fonction de régularisation afin de contrôler la complexité de la matrice $\textbf{X}$. Dans la suite nous allons voir les algorithmes que nous avons décidé d'utiliser afin de résoudre ce problème.
+
+où $P$ est une fonction de régularisation qui permet de contrôler la complexité de la matrice $\textbf{X}$. Dans la suite nous allons décrire et comparer les algorithmes que nous avons utilisé afin de résoudre ce problème.
 
 \section{Algorithmes}
 
-\subsection{Descente de gradient stochastique simple}
+\subsection{Descente de gradient stochastique}
 
 % Parler de la différence entre tirage avec remise ou sans. Quel est l'avantage théorique d'une descente de gradient sto?
 
+Lorsqu'on s'expose à des sets de données de très grande taille, le temps de calcul et la complexité de l'algorithme d'optimisation deviennent des contraintes que l'on ne peut pas négliger \cite{bottouSGD} \cite{bottou}. Dans ce contexte, l'algorithme de descente de gradient stochastique (noté SGD dans la suite) présente de nombreux avantages que ce soit du point de vue de la complexité mais aussi du point de vue de la performance.
+
+Dans un souci de généralisation de notation nous remplaçons l'équation \eqref{objectif} par l'équation suivante, en supposant que la fonction de régularisation $P$ peut se décomposer en une somme sur les éléments de \textbf{X} (ce qui sera le cas en pratique) :
+
+\begin{equation}
+\label{objectif2}
+ \text{minimiser } \frac{1}{| \Omega |}\sum_{(u,i)\in\Omega}l(X_{ui},M_{ui}) + P(X_{ui})
+\end{equation}
+
+\subsubsection*{Descente de gradient "usuelle"}
+
+Les algorithmes de gradient classique calculent à chaque étape $t$ le gradient complet de la fonction objectif par rapport à $\textbf{X}_t$ et mette ensuite à jour $\textbf{X}_{t+1}$ en suivant différentes méthodes. L'une des plus efficaces en terme de convergence est la méthode de Newton qui sous certaines hypothèses parvient à une convergence quadratique. 
+
+Cependant lorsque $| \Omega |$ devient très grand (ici 1 million voire 10 millions) il devient très coûteux de faire les étapes de calculs précédentes. On préférera alors une méthode plus simple comme l'algorithme SGD.
+
+\subsubsection*{Descente de gradient stochastique}
+
+Au lieu de calculer le gradient total à chaque itération de l'algorithme on va simplement calculer le gradient par rapport à un example (donc un couple $(u,i)$)  tiré aléatoirement. L'étape de mise à jour devient alors la suivante :
+
+\begin{equation}
+\label{grad}
+X_{ui}^{t+1} = X_{ui}^t-\gamma_t\left(\nabla_Xl(X_{ui},M_{ui})+\nabla_XP(X_{ui})\right)
+\end{equation}
+
+
+En se ramenant au cas particulier de l'équation \eqref{objectif}, on voit que l'étape de mise à jour peut s'exprimer comme une mise à jour sur la $u$-ème ligne $L_u$ de la matrice $L$ et sur la $i$-ème colonne $R_i$ de la matrice $R$ (en supposant que $P$ peut se décomposer sur $L$ et $R$ ce qui sera le cas en pratique) :
+
+
+\begin{eqnarray}
+\label{grad1}
+L_u & \leftarrow & L_u + \gamma_t\left(e_{ui}R_i^*-\nabla_L P_L(L_u)  \right) \\
+R_i & \leftarrow & R_i  + \gamma_t\left(e_{ui}L_u^*-\nabla_R P_R(R_i)  \right)
+\label{grad2}
+\end{eqnarray}
+
+où $e_{ui} = M_{ui} -  \mu - b_u  - b_i-L_{u}R_{i} $ est l'erreur de prédiction.
+
+Le processus stochastique des exemples tirés au cours des itérations de l'algorithme est donc fortement corrélé à la manière dont on tire les exemples aléatoirement. Ici on espère que chacune des contributions (équation \eqref{grad}) se comportent comme la moyenne (descente de gradient usuelle), et ce malgré le bruit introduit par ces tirages.
+
+\subsubsection*{Tirage avec remise}
+
+Ici les tirages sont fait avec remise. De la sorte, en espérant que l'ensemble d'apprentissage est assez riche au sens de la distribution qu'il vise à représenter, on peut considérer qu'à chaque itération, les exemples sont tirés en suivant la véritable distribution des données. Intuitivement, on s'attend alors bien à ce que l'agrégation de toutes ces gradients ponctuels \eqref{grad} se comportent comme la moyenne (gradient total).
+
+Des résultats de convergences ont été prouvés en supposant que le pas d'incrément $\gamma_t$ décroit suffisamment au cours des itérations. Le théorème de Robbins-Siegmund (1971) permet notamment de prouver la convergence presque sure de la méthode avec des hypothèses assez lâche.
+
+Dans ce qui suit nous présentons une méthode qui permet de paralléliser cet algorithme afin de gagner du temps de calcul. On verra aussi que la méthode de tirage des exemples différent quelque peu de la méthode présentée ici. On s'efforcera alors de comparer ces deux méthodes.
 
 \subsection{Algorithme parallélisé \jel }
 
@@ -139,7 +189,7 @@ Dans \cite{jelly}, les auteurs introduisent une version parallélisée de l'algo
 
 \subsubsection*{Tirage sans remise}
 
-Les équations de mise à jour \eqref{grad} pour un couple d'indices $(u,i)$ affectent uniquement la $u$-ème ligne de $L$ et la $i$-ème colonne de $R$. Ainsi, deux de ces opérations pour des couples $(u,i)$ et $(u',i')$ tels que $u \neq u'$ et $i \neq i'$ sont totalement indépendantes: elles n'affectent pas les mêmes coefficients et peuvent être réalisées dans n'importe quel ordre, voire simultanément. C'est sur ce principe que repose l'algorithme \jel \cite{jelly}. Pour cela, le tirage des indices se fait \emph{sans remise}, contrairement à l'algorithme du gradient stochastique simple, et nous appellerons \emph{époque} le fait de parcourir une fois l'ensemble des données. Cet algorithme, similaire au gradient stochastique avec remise, a déjà été introduit sous le nom de descente de (sous-)gradient "incrémental" \cite{nedic}. Dans notre contexte, le tirage sans remise est plus une nécessité pratique qu'un véritable choix théorique: il est nécessaire de connaître à chacune de ces époques la séquence complète des indices à traiter afin de pouvoir paralléliser les opérations qui peuvent l'être.
+Les équations de mise à jour \eqref{grad1} et \eqref{grad2} pour un couple d'indices $(u,i)$ affectent uniquement la $u$-ème ligne de $L$ et la $i$-ème colonne de $R$. Ainsi, deux de ces opérations pour des couples $(u,i)$ et $(u',i')$ tels que $u \neq u'$ et $i \neq i'$ sont totalement indépendantes: elles n'affectent pas les mêmes coefficients et peuvent être réalisées dans n'importe quel ordre, voire simultanément. C'est sur ce principe que repose l'algorithme \jel \cite{jelly}. Pour cela, le tirage des indices se fait \emph{sans remise}, contrairement à l'algorithme du gradient stochastique simple, et nous appellerons \emph{époque} le fait de parcourir une fois l'ensemble des données. Cet algorithme, similaire au gradient stochastique avec remise, a déjà été introduit sous le nom de descente de (sous-)gradient "incrémental" \cite{nedic}. Dans notre contexte, le tirage sans remise est plus une nécessité pratique qu'un véritable choix théorique: il est nécessaire de connaître à chacune de ces époques la séquence complète des indices à traiter afin de pouvoir paralléliser les opérations qui peuvent l'être.
 
 Un véritable tirage sans remise se ferait via la sélection, avec une loi uniforme, d'une permutation sur $\Omega$. Cependant, une telle permutation peut rapidement devenir encombrante en mémoire et gloutonne en temps de calcul. Les auteurs de \jel  choisissent donc de tirer une permutation $\pi_u$ sur les utilisateurs et une permutation $\pi_i$ sur les items, et de sélectionner la permutation sur les couples $(\pi_u,\pi_i)$. Il est évident que l'on est loin de la loi uniforme: par exemple, en admettant que tous les utilisateurs et tous les items sont présents dans $\Omega$, il y a $(n_un_i)!$ permutations possibles sur $\Omega$, tandis qu'il existe seulement $n_u!n_i!$ de la forme $(\pi_u,\pi_i)$, ce qui est bien moindre. Si en pratique on s'attend à ce que cela ne fasse pas une grande différence, cela rend l'éventuelle analyse théorique d'un tel algorithme relativement subtile.
 
