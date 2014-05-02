@@ -190,7 +190,7 @@ Ici les tirages sont fait avec remise. De la sorte, en espérant que l'ensemble 
 
 Des résultats de convergences ont été prouvés en supposant que le pas d'incrément $\gamma_t$ décroit suffisamment au cours des itérations. Le théorème de Robbins-Siegmund (1971) permet notamment de prouver la convergence presque sure de la méthode avec des hypothèses assez lâches.
 
-Dans ce qui suit nous présentons une méthode qui permet de paralléliser cet algorithme afin de gagner du temps de calcul. On verra aussi que la méthode de tirage des exemples diffère de la méthode présentée ici. On s'efforcera alors de comparer ces deux méthodes.
+Dans ce qui suit nous présentons une méthode qui permet de paralléliser cet algorithme afin de gagner du temps de calcul. On verra aussi que la méthode de tirage des exemples diffère de la méthode présentée ici. Nous appelons cette première méthode Simple Gradient Stochastique (SGD), et on s'efforcera de comparer ces deux approches.
 
 \subsection{Algorithme parallélisé \jel }
 
@@ -238,10 +238,40 @@ Cependant, dû à la non-mutabilité des données en mémoire partagée et au fa
 
 Nous présenterons nos résultats sous deux aspects. La première partie concernera la comparaison entre les deux algorithmes précédents en termes de précision par rapport à la fonction objectif et en termes de temps de calcul. On reviendra aussi sur la différence entre le tirage avec remise et sans remise.
 
- Dans la deuxième partie nous commenterons en détails les résultats obtenus sur la base de données du GroupLens Research \footnote{http://grouplens.org/datasets/movielens/}. Les résultats seront présentés sur la base de données qui comprend 1 million de notations de 6000 utilisateurs pour 4000 films. 
+ Dans la deuxième partie nous commenterons en détails les résultats obtenus sur la base de données du GroupLens Research \footnote{http://grouplens.org/datasets/movielens/}. Les premiers résultats seront présentés sur la base de données qui comprend 1 million de notations de 6000 utilisateurs pour 4000 films. 
 
-\subsection{Comparaison des deux algorithmes}
-% Le nom peut changer :) 
+\subsection{Performance des deux approches}
+% Le nom peut changer :)
+
+\subsubsection*{Fonction objectif}
+Dans un premier temps, nous comparons la convergence des deux algorithmes en examinant la fonction objectif \eqref{objectif}. Puisque \jel ne permet de calculer cette fonction qu'entre chaque époque, nous n'enregistrons également cette valeur qu'aux itérations multiples de $|\Omega|$ pour l'algorithme simple SGD. Rappelons que la seule différence entre les deux algorithmes est alors le tirage des indices, avec ou sans remise. Ces résultats sont présentés Figure \ref{obj_samp}. On constate que, toutes proportions gardées, il y a extrêmement peu de différence entre les deux approches, même en échelle logarithmique. Néanmoins, si l'on supprime la toute première valeur de la fonction objectif (avant l'exécution des algorithmes) et que l'on agrandit les courbes, \jel obtient des performances légèrement meilleures; dans le cas présent il parvient même à rattraper son retard après une époque. Ce comportement a été systématiquement observé dans toutes les simulations, et contredit empiriquement l'avantage théorique donné au tirage avec remise.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.45\textwidth]{fig/obj_samp1}
+\includegraphics[width=0.45\textwidth]{fig/obj_samp2}
+\caption{Fonction objectif pour les deux algorithmes. A droite, la première valeur (avant le déroulement des algorithmes) a été supprimée, permettant de mieux apprécier les différences entre les deux courbes, qui restent toutefois minimes.}
+\label{obj_samp}
+\end{figure}
+
+Il est également intéressant d'examiner la vitesse de convergence en fonction du pas de gradient $\gamma$ (Fig. \ref{obj_gamma}). Comme attendu, plus celui-ci est grand, plus la convergence est rapide. Néanmoins, il faut bien entendu être prudent: passé une certaine valeur (environ 0.4 dans nos simulations), l'algorithme ne converge plus et souvent les valeurs explosent à l'infini.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.5\textwidth]{fig/obj_gamma}
+\caption{Convergence de \jel en fonction de $\gamma$.}
+\label{obj_gamma}
+\end{figure}
+
+\subsubsection*{Temps de calcul}
+Dans la figure \ref{time}, nous comparons le temps d'exécution par époque des deux algorithmes, en fonction du nombre de processus $p$ pour \jel. Les simulations ont été exécutées sur un processeur possédant 6 cœurs (12 en \emph{hyper-threading}). Pour comparaison, nous indiquons également le temps d'exécution du processus d'ordonnancement des données. Nous constatons qu'en effet sur nos simulations il n'est pas nécessaire de dévouer plus d'un processus à cette tâche, ce n'est pas le facteur limitant. Concernant \jel, un minimum est atteint pour $p=5$, correspondant à $6$ processus parallèles (en comptant le processus de permutation), le nombre de coeurs réels du processeur. De manière surprenante, l'\emph{hyper-threading} ne permet pas de réduire le temps de calcul. Nous supposons que le gain de temps que ce procédé apporterait est plutôt minime à ces échelles de temps, et compensé par les opérations auxiliaires: création du processus, assignation des variables etc. Enfin, on constate que même pour $p=1$ \jel est bien plus rapide que SGD; cela est dû au fait qu'à chaque itération SGD doit tirer un indice aléatoire puis aller chercher en mémoire les données correspondantes, tandis que \jel parcoure linéairement les données permutées, ce qui permet des accès mémoire bien plus rapides. Cela est probablement dû au langage utilisé, \textsc{Python}, et à ses diverses optimisations lors de parcours simples de tableaux, listes, etc. Un langage plus bas-niveau permettrait de mieux quantifier ces différences.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.7\textwidth]{fig/time_jel1}
+\caption{Temps d'exécution par époque en fonction de $p$. Le temps d'exécution d'une époque de SGD est indiqué, ainsi que le temps pris par le processus de permutation des données.}
+\label{time}
+\end{figure}
 
 
 \subsection{Résultats sur la base de données de films}
