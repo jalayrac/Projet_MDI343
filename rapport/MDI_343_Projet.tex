@@ -228,8 +228,11 @@ Nous notons toutefois qu'il existe une version de l'algorithme extrêmement simi
 
 \subsubsection*{Détails d'implémentation}
 
+De manière similaire au papier original, nous dévouons un processus entier à la permutation et l'ordonnancement des données. Il est lancé en parallèle des processus calculant le gradient à l'époque courante, et créé une copie des données permutées pour l'époque suivante (afin d'éviter les conflits de lecture). Ainsi, à tout instant deux copies des données sont gardées en mémoire.
 
+Le papier original \cite{jelly} incite à dévouer plusieurs processus à cette permutation, quitte à accroître la mémoire utilisée. Cependant cela demande un niveau de contrôle de cette mémoire et de granularité quelque peu en dehors du cadre de ce projet -- la fusion des résultats des différents processus doit se faire intelligemment et rapidement, or de manière générale la mémoire partagée entre processus doit être pré-allouée et ne supporte pas les structures mutables comme les listes, etc. De plus, les auteurs dévouent deux processus sur douze à la permutation, et en pratique nous n'avons pas accès à d'aussi gros processeurs. Nous gardons donc dans la plupart des cas un seul processus alloué à cette permutation.
 
+Cependant, dû à la non-mutabilité des données en mémoire partagée et au fait que la taille de chaque bloc dépend des permutations à chaque époque, l'ordonnancement des données se fait en deux étapes de temps de calcul à peu près égaux; pour calculer la taille de chaque blocs puis pour ranger les données. Ainsi, il est possible de diviser cet ordonnancement en deux processus: à l'époque $n$, un processus calcule les permutations et la taille des blocs pour l'époque $n+2$, un processus ordonne les données pour l'époque $n+1$, et les autres processus calculent les gradients. Selon le nombre de cœurs de la machine, il peut être possible de préférer affecter deux cœurs à l'ordonnancement des données, cependant lors de nos expériences sur nos machines relativement limitées, nous avons constaté que le calcul des gradients était systématiquement plus long, ainsi nous n'utilisons pas cette configuration.
 
 \section{Résultats}
 

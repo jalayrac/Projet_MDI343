@@ -8,9 +8,9 @@
 \contentsline {section}{\numberline {2}Algorithmes}{5}
 \contentsline {subsection}{\numberline {2.1}Descente de gradient stochastique}{5}
 \contentsline {subsection}{\numberline {2.2}Algorithme parall\IeC {\'e}lis\IeC {\'e} \textsc {Jellyfish} }{6}
-\contentsline {section}{\numberline {3}R\IeC {\'e}sultats}{8}
-\contentsline {subsection}{\numberline {3.1}Comparaison des deux algorithmes}{8}
-\contentsline {subsection}{\numberline {3.2}R\IeC {\'e}sultats sur la base de donn\IeC {\'e}es de films}{8}
+\contentsline {section}{\numberline {3}R\IeC {\'e}sultats}{9}
+\contentsline {subsection}{\numberline {3.1}Comparaison des deux algorithmes}{9}
+\contentsline {subsection}{\numberline {3.2}R\IeC {\'e}sultats sur la base de donn\IeC {\'e}es de films}{9}
 \contentsline {paragraph}{RMSE}{9}
 \contentsline {paragraph}{Histogramme d'erreur}{9}
-\contentsline {paragraph}{Affichage des facteurs latents}{9}
+\contentsline {paragraph}{Affichage des facteurs latents}{10}
