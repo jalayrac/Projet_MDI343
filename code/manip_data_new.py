@@ -109,7 +109,7 @@ def prepare_dataset(size='1m'):
         
         data['rating']=data['rating']-mu-data['user_id'].map(lambda x: b_u[x])-data['movie_id'].map(lambda x: b_i[x])
     
-    return data,movies,index_to_user,index_to_movie
+    return data,movies,index_to_user,index_to_movie,b_u,b_i,mu
 
 def draw2DMovies(R,index_to_movie,movies,dim_x=0,dim_y=1):
 
@@ -163,10 +163,45 @@ def displayHisto(t_test,L,R):
     pylab.legend()
     pylab.savefig('hist.eps')
 
+def propNoteGraph(data_test,b_u,b_i,mu,L,R):
+    # Give the interesting graphic
+    data_test.index = range(data_test.shape[0])
+    index_note = np.arange(1,6)
+    count_1 = np.zeros([5,2])
+    count_2 = np.zeros([5,2])
+    notes = DataFrame(count_1,index=index_note,columns=['BON','MAUVAIS'])
+    notes_naif = DataFrame(count_2,index=index_note,columns=['BON','MAUVAIS'])
+    
+    for r in data_test.index:
+#        r_pred = round(mu + b_u[data_test.user_id.values[r]] + b_i[data_test.movie_id.values[r]] + X[data_test.user_id.values[r],data_test.movie_id.values[r]])           
+        mean = mu + b_u[data_test.user_id.values[r]] + b_i[data_test.movie_id.values[r]]        
+        r_pred = round(mean + np.dot(L[data_test.user_id.values[r],:],R[data_test.movie_id.values[r],:]))          
+        r_pred = min(5,r_pred)
+        r_pred = max(1,r_pred)
+        r_true = int(round(mean+data_test.rating.values[r]))
+        r_naif = round(mean)
+
+        if r_naif==r_true:
+            notes_naif.BON[r_true]+=1
+        else:
+            notes_naif.MAUVAIS[r_true]+=1
+        
+        if r_pred==r_true:
+            notes.BON[r_true]+=1
+        else:
+            notes.MAUVAIS[r_pred]+=1
+                
+    notes_naif_prop = notes_naif.div(notes_naif.sum(1),axis=0)
+    notes_prop = notes.div(notes.sum(1),axis=0)
+    
+    notes_naif_VS_algo = pd.concat([notes_prop.BON,notes_naif_prop.BON], axis=1)
+    notes_naif_VS_algo.columns = ['ALGO','NAIF']
+    return notes_naif_VS_algo
+
 if __name__=='__main__':
     
     temp_D = time.clock()
-    triplet,movies,index_to_user,index_to_movie = prepare_dataset(size='1m')
+    triplet,movies,index_to_user,index_to_movie,b_u,b_i,mu = prepare_dataset(size='1m')
     temp_F = time.clock()-temp_D
     
     print('Temps de preprocessing des donnees')    
@@ -193,12 +228,14 @@ if __name__=='__main__':
     triplet_train = np.delete(list_triplet,ind_test,0)
     
     
+   
+
     
     
 #    # Parameters for the stochastic gradient descent    
-    alpha = 0.1
-    gamma = 0.09
-#    
+#    alpha = 0.1
+#    gamma = 0.09
+##    
     temp_D = time.clock()
     print('Gradient descent...')
     n_u = index_to_user.shape[0]
@@ -206,47 +243,26 @@ if __name__=='__main__':
     L,R = simple_sgd(n_u,n_i,triplet_train,alpha,gamma)
     temp_T = time.clock()-temp_D
     print('Temps de de descente de gradient stochastique :')
-    print(temp_T)
-    
-    L_z = np.zeros([n_u,30])
-    R_z = np.zeros([n_i,30])    
-    
-##    L,R=jlf.jellyfish(triplet_train,alpha,gamma,nb_epochs=13)
-#    temp_total = time.clock()-temp_D
-    displayHisto(triplet_test,L,R)
-    draw2DMovies(R,index_to_movie,movies,dim_x=6,dim_y=9)
-    
-    a = evaluate_model(L,R,triplet_test)
+#    print(temp_T)
 #    
-#    # Plot the interesting graphic
-#    index_note = np.arange(1,6)
-#    count = np.zeros([5,2])
-#    notes = DataFrame(count,index=index_note,columns=['BON','MAUVAIS'])
+#    L_z = np.zeros([n_u,30])
+#   R_z = np.zeros([n_i,30])    
 #    
-#    for r in data_test.index:
-#        r_pred = round(mu + b_u[data_test.user_id.values[r]] + b_i[data_test.movie_id.values[r]] + X[data_test.user_id.values[r],data_test.movie_id.values[r]])       
-#        r_pred = min(5,r_pred)
-#        r_pred = max(1,r_pred)
-#        r_true = round(data_test.rating.values[r])
-#        if r_pred==r_true:
-#            notes.BON[r_true]+=1
-#        else:
-#            notes.MAUVAIS[r_pred]+=1
-#        
-#    index_note = np.arange(1,6)
-#    count = np.zeros([5,2])
-#    notes_naif = DataFrame(count,index=index_note,columns=['BON','MAUVAIS'])
+###    L,R=jlf.jellyfish(triplet_train,alpha,gamma,nb_epochs=13)
+##    temp_total = time.clock()-temp_D
+#    displayHisto(triplet_test,L,R)
+#    draw2DMovies(R,index_to_movie,movies,dim_x=6,dim_y=9)
 #    
-#    for r in data_test.index:
-#        r_pred = round(mu + b_u[data_test.user_id.values[r]] + b_i[data_test.movie_id.values[r]])       
-#        r_pred = min(5,r_pred)
-#        r_pred = max(1,r_pred)
-#        r_true = round(data_test.rating.values[r])
-#        if r_pred==r_true:
-#            notes_naif.BON[r_true]+=1
-#        else:
-#            notes_naif.MAUVAIS[r_pred]+=1
-#    
-#    notes_naif_prop = notes_naif.div(notes_naif.sum(1),axis=0)
-#    notes_prop = notes.div(notes.sum(1),axis=0)
+#    a = evaluate_model(L,R,triplet_test)
 
+    
+    n_u = index_to_user.shape[0]
+    n_i = index_to_movie.shape[0]
+    L_z = np.random.random([n_u,30])
+    R_z = np.random.random([n_i,30])
+    
+    data_test = triplet.ix[ind_test] 
+    
+    notes_naifalgo = propNoteGraph(data_test,b_u,b_i,mu,L,R)
+
+    
