@@ -55,7 +55,7 @@ Systèmes de recommandation}
 \section*{Introduction}
 \addcontentsline{toc}{section}{Introduction}
  
- Le challenge Netflix a mis en avant la problématique de créer de bons systèmes de recommandation. A l'heure où l'on est en mesure d'agréger énormément d'informations sur les utilisateurs, leurs préférences, leurs attitudes, il est légitime de se demander s'il est possible de traiter ces données afin d'améliorer l'expérience de l'utilisateur en lui proposant de nouveaux produits qui vont lui plaire.
+ Le challenge Netflix a mis en avant la problématique de créer de bons systèmes de recommandations. A l'heure où l'on est en mesure d'agréger énormément d'informations sur les utilisateurs, leurs préférences, leurs attitudes, il est légitime de se demander s'il est possible de traiter ces données afin d'améliorer l'expérience de l'utilisateur en lui proposant des produits qui vont lui plaire.
  
  Dans ce contexte beaucoup de méthodes ont été mises à l'épreuve afin de créer le système de recommandation le plus performant. Les techniques de factorisation de matrice se sont démarquées et ont notamment permis à l'équipe \textit{BellKor's Pragmatic Chaos} de remporter le prix d'un million de dollar décerné par Netflix \cite{koren}.
  
@@ -67,7 +67,7 @@ Systèmes de recommandation}
 
 \section{Présentation du problème et notations}
 
-Le cadre général de la problématique de recommandation est de relier des utilisateurs à des produits. Dans cette partie nous présentons tout d'abord les méthodes les plus utilisées actuellement pour les systèmes de recommandation avant de nous concentrer sur la méthode que nous avons approfondie.
+Le cadre général de la problématique de recommandation est de relier des utilisateurs à des produits. Dans cette partie nous présentons tout d'abord les méthodes les plus utilisées actuellement pour les système de recommandations avant de nous concentrer sur la méthode que nous avons approfondie.
 
 \subsection{Différentes méthodes}
 
@@ -80,7 +80,7 @@ Cette méthode vise à caractériser la nature de chaque utilisateur ainsi que d
 
 \subsubsection*{\textit{Collaborative filtering} (ou filtrage collaboratif)}
 
-L'autre approche se base essentiellement sur des avis passés (implicites ou explicites) d'utilisateurs à propos de produits. La méthode de \textit{collaborative filtering} analyse les liens qui existent entre utilisateurs et produits via la connaissance de votes passés afin de proposer de nouvelles associations utilisateur/produit. L'avantage principal de cette méthode par rapport à celle de \textit{content filtering} est qu'ici il n'y a nul besoin de connaître le produit ou les utilisateurs à priori. Par contre cette méthode connait le problème du \textit{cold start}, i.e., elle est incapable de traiter l'arrivée d'un nouveau produit ou d'un nouvel utilisateur. Afin de la faire fonctionner il faut posséder un nombre déjà conséquent d'avis de chaque utilisateur et pour un grand nombre de produits.
+L'autre méthode se base essentiellement sur des avis passés (implicites ou explicites) d'utilisateurs à propos de produits. La méthode de \textit{collaborative filtering} analyse les liens qui existent entre utilisateurs et produits via la connaissance de votes passés afin de proposer de nouvelles associations utilisateur/produit. L'avantage principal de cette méthode par rapport à celle de \textit{content filtering} est qu'ici il n'y a nul besoin de connaître le produit ou les utilisateurs à priori. Par contre cette méthode connait le problème du \textit{cold start}, i.e., elle est incapable de traiter l'arrivée d'un nouveau produit ou d'un nouveau utilisateur. Afin de la faire fonctionner il faut posséder un nombre déjà conséquents d'avis de chaque utilisateurs et pour chaque produits.
 
 Dans ce contexte de \textit{collaborative filtering} il existe à nouveau deux principales méthodes. La première est connue sous le nom de \textit{neighborhood method}, la deuxième se concentre autour de \textit{latent factor models}.
 
@@ -99,41 +99,41 @@ La principale idée est d'essayer de modéliser les relations qui existent entre
 
 \paragraph{\textit{Latent factor model}}
 
-Cette dernière approche est celle que nous avons choisie d'étudier plus en détails. L'idée derrière cette méthode est d'essayer de déterminer des \textit{facteurs latents} qui seront les dimensions d'un espace dans lequel on pourra plonger à la fois les utilisateurs et les produits. Cet espace sera directement déduit de la structure des votes qui est le lien entre utilisateurs et produits. L'idée ensuite est de pouvoir rassembler un utilisateur et un film qui seront proches dans cet espace. 
+Cette dernière approche est celle que nous avons choisi d'étudier plus en détails. L'idée derrière cette méthode est d'essayer est d'essayer de déterminer des \textit{facteurs latents} qui seront les dimensions d'un espace dans lequel on pourra plonger à la fois les utilisateurs et les produits. Cet espace sera directement déduit de la structure des votes qui est le lien entre utilisateurs et produits. L'idée ensuite est de pouvoir rassembler un utilisateur et un film qui seront proches dans cet espace. 
 
-Ces facteurs latents peuvent être parfois interprétables. Par exemple une dimension pourra représenter le fait pour un film d'être une comédie. Les points maximaux seront alors considérés comme des comédies alors que les points minimaux pourront être des drames. La position d'un utilisateur sur cet axe témoignera alors de la propension de celui-ci à aimer ce genre. 
+Ces facteurs latents peuvent être parfois interprétables. Par exemple une dimension pourront représenté le fait pour un film d'être une comédie. Les points maximaux seront alors considérés comme des comédies alors que les points minimaux pourront être des drames. La position d'un utilisateur sur cet axe témoignera alors de la propension de celui-ci à aimer ce genre. 
 
-Cependant parfois ces facteurs ne sont pas interprétables directement, ce qui donne une certaine richesse au modèle. Cette méthode permet en effet de détecter des tendances qui n'auraient pas été prévisible à la main.
+Cependant parfois ces facteurs ne sont pas interprétables directement, ce qui donne une certaine richesse au modèle. Cette méthode permet en effet de détecter des tendances qui n'aurait pas été prévisible à la main.
 
 Sur la droite de la Figure 2 on a représenté cette approche pour 2 facteurs latents. De cela on peut prédire que l'utilisateur en haut à droite du graphique va certainement adorer le film \textit{Braveheart} alors qu'il va probablemnet détester le film \textit{The Princess Diaries}.
 
-\subsection{Factorisation de matrice}
+\subsection{Factorisation de matrice et notations}
 
 Nous allons voir qu'une méthode afin de calculer ces facteur latents est de factoriser la partie connue de la matrice de notes $\textbf{M}$. On rappelle que $\textbf{M}_{u,i}$ est la note qu'a mis l'utilisateur $u$ au produit $i$ ($u$ pour \textit{user} et $i$ pour \textit{item}). Dans le cas où l'on a $n_u$ utilisateurs et $n_i$ produits cette matrice est donc de taille $n_u\times n_i$. Le gros obstacle est que cette matrice de notation est parcimonieuse, en effet bien souvent on ne possède qu'un certain nombre de produits pour lequel l'utilisateur a voté. Dans la suite on note $\Omega$ le set d'indices pour lequel la notation est connue. On a donc $|\Omega|\ll n_u\times n_i$. 
 
-L'idée va alors être de trouver une matrice $\textbf{X}$ qui va être \textit{proche dans un certain sens} de l'information contenue dans la matrice $\textbf{M}$ et qui va pouvoir s'écrire de manière factorisée :
+L'idée va alors être de trouver une matrice $\textbf{X}$ qui va être \textit{proche dans un certain sens} de l'information contenue dans la matrice $\textbf{M}$ et qui va pouvoir s'écrire de manière factorisé :
 
 $$ \textbf{X} = LR $$
 
-où $L \in \mathbb{R}^{n_u\times r}$ et $R \in \mathbb{R}^{r\times n_i}$ où $r$ est le nombre de facteurs latents que l'on recherche. Ainsi la ligne $u$ (resp. la colonne $i$) de la matrice $L$ (resp. $R$) va représenter la position dans l'espace des facteurs latents de l'utilisateur $u$ (resp. produit $i$). Le produit scalaire de ces deux vecteurs va donc représenter la propension de l'utilisateur $u$ a aimer le produit $i$. 
+où $L \in \mathbb{R}^{n_u\times r}$ et $R \in \mathbb{R}^{r\times n_i}$ où $r$ est le nombre de facteurs latents que l'on recherche. Ainsi la ligne $u$ (resp. la colonne $i$) de la matrice $L$ (resp. $R$) va représenter la position dans l'espace des facteurs latents de l'utilisateur $u$ (resp. produit $i$). Le produit scalaire de ces deux vecteurs va donc représenter la propension de l'utilisateur $u$ a aimé le produit $i$. 
 
-Maintenant essayons de décrire de manière plus mathématique la notion de \textit{proche dans un certain sens de l'information contenue dans $\textbf{M}$}. Il va donc falloir déterminer une fonction de coût $f$ d'attache aux données sur la matrice $\textbf{X}$ en vue de se ramener à un problème classique d'optimisation. Une première idée serait de se dire que l'on pourrait écrire $f$ comme étant la somme des écarts quadratiques entre $X_{ui}$ et la note $M_{ui}$. On aurait alors :
+Maintenant essayons de décrire de manière plus mathématique la notion de \textit{proche dans un certain sens de l'information contenue dans $\textbf{M}$}. Il va donc falloir déterminer une fonction de coût $f$ d'attaches aux données sur la matrice $\textbf{X}$ en vue de se ramener à un problème classique d'optimisation. Une première idée serait de se dire que l'on pourrait écrire $f$ comme étant la moyenne empirique des écarts quadratiques entre $X_{ui}$ et la note $M_{ui}$. On aurait alors :
 
-$$ f(\textbf{X}) = \sum_{(u,i)\in\Omega}\Vert X_{ui}-M_{ui} \Vert^2 $$
+$$ f(\textbf{X}) = \frac{1}{| \Omega |}\sum_{(u,i)\in\Omega}\Vert X_{ui}-M_{ui} \Vert^2 $$
 
-Cependant, avec cette représentation, on ne prend pas en compte le biais naturel qui existe dans nos données. En effet il est important de pouvoir modéliser le fait que certains utilisateurs sont plus sévères que d'autres pour noter les produits ou encore que certains produits sont parfois beaucoup mieux notés que la moyenne. Sans prendre en compte cela il devient difficile de modéliser les notes par un simple produit scalaire comme nous voulions le faire plus haut. Au lieu de représenter directement la note obtenue, on va préférer que le produit scalaire $X_{ui}$ représente l'écart à la note obtenue conte tenu du biais $b_{ui}$ que nous connaissons sur nos données :
+Cependant, avec cette représentation, on ne prend pas en compte le biais naturel qui existe dans nos données. En effet il est important de pouvoir modéliser le fait que certains utilisateurs sont plus sévères que d'autres pour noter les produits ou encore que certains produits sont parfois beaucoup mieux noté que la moyenne. Sans prendre en compte cela il devient difficile de modéliser les notes par un simple produit scalaire comme nous voulions le faire plus haut. Au lieu de représenter directement la note obtenue, on va préférer que le produit scalaire $X_{ui}$ représente l'écart à la note obtenue conte tenu du biais $b_{ui}$ que nous connaissons sur nos données :
 
 $$b_{ui} = \mu + b_u  + b_i $$ 
 
 où $\mu$ est la moyenne totale des notes, $b_u$ est la moyenne des notes décernés par l'utilisateur $u$, et $b_i$ est la moyenne des notes obtenues par le produit $i$. Tel quel $b_{ui}$ est déjà une sorte d'estimateur de la note que va mettre l'utilisateur $u$ au produit $i$. On verra dans la suite qu'il peut être intéressant de comparer nos résultats à ce système de recommandation très naïf. Ainsi on va réécrire notre fonction de coût d'attache aux données:
 
-$$ f(\textbf{X}) = \sum_{(u,i)\in\Omega}\Vert X_{ui}+\mu + b_u  + b_i-M_{ui} \Vert^2 $$
+$$ f(\textbf{X}) = \frac{1}{| \Omega |}\sum_{(u,i)\in\Omega}\Vert X_{ui}+\mu + b_u  + b_i-M_{ui} \Vert^2 $$
 
 Finalement notre problème de détermination de facteur latents peut s'écrire de la manière suivante :
 
 \begin{equation}
 \label{objectif}
- \text{minimiser } \sum_{(u,i)\in\Omega}\Vert X_{ui}+\mu + b_u  + b_i-M_{ui} \Vert^2 + P(\textbf{X})
+ \text{minimiser } \frac{1}{| \Omega |}\sum_{(u,i)\in\Omega}\Vert X_{ui}+\mu + b_u  + b_i-M_{ui} \Vert^2 + P(\textbf{X})
 \end{equation}
 
 
@@ -151,18 +151,18 @@ Dans un souci de généralisation de notation nous remplaçons l'équation \eqre
 
 \begin{equation}
 \label{objectif2}
- \text{minimiser } \sum_{(u,i)\in\Omega}l(X_{ui},M_{ui}) + P(X_{ui})
+ \text{minimiser } \frac{1}{| \Omega |}\sum_{(u,i)\in\Omega}l(X_{ui},M_{ui}) + P(X_{ui})
 \end{equation}
 
 \subsubsection*{Descente de gradient "usuelle"}
 
-Les algorithmes de gradient classique calculent à chaque étape $t$ le gradient complet de la fonction objectif par rapport à $\textbf{X}_t$ et mettent ensuite à jour $\textbf{X}_{t+1}$ en suivant différentes méthodes. L'une des plus efficaces en terme de convergence est la méthode de Newton qui sous certaines hypothèses parvient à une convergence quadratique. 
+Les algorithmes de gradient classique calculent à chaque étape $t$ le gradient complet de la fonction objectif par rapport à $\textbf{X}_t$ et mette ensuite à jour $\textbf{X}_{t+1}$ en suivant différentes méthodes. L'une des plus efficaces en terme de convergence est la méthode de Newton qui sous certaines hypothèses parvient à une convergence quadratique. 
 
 Cependant lorsque $| \Omega |$ devient très grand (ici 1 million voire 10 millions) il devient très coûteux de faire les étapes de calculs précédentes. On préférera alors une méthode plus simple comme l'algorithme SGD.
 
 \subsubsection*{Descente de gradient stochastique}
 
-Au lieu de calculer le gradient total à chaque itération de l'algorithme on va simplement calculer le gradient par rapport à un exemple (donc un couple $(u,i)$)  tiré aléatoirement. L'étape de mise à jour devient alors la suivante :
+Au lieu de calculer le gradient total à chaque itération de l'algorithme on va simplement calculer le gradient par rapport à un example (donc un couple $(u,i)$)  tiré aléatoirement. L'étape de mise à jour devient alors la suivante :
 
 \begin{equation}
 \label{grad}
@@ -170,23 +170,23 @@ X_{ui}^{t+1} = X_{ui}^t-\gamma_t\left(\nabla_Xl(X_{ui},M_{ui})+\nabla_XP(X_{ui})
 \end{equation}
 
 
-En se ramenant au cas particulier de l'équation \eqref{objectif}, on voit que l'étape de mise à jour peut s'exprimer comme une mise à jour sur la $u$-ème ligne $L_u$ de la matrice $L$ et sur la $i$-ème colonne $R_i$ de la matrice $R$. Dans notre implémentation nous avons choisi $P(X_{ui}) = \lambda\left(\Vert L_u \Vert_2^2 + \Vert R_i \Vert_2^2\right)$.
+En se ramenant au cas particulier de l'équation \eqref{objectif}, on voit que l'étape de mise à jour peut s'exprimer comme une mise à jour sur la $u$-ème ligne $L_u$ de la matrice $L$ et sur la $i$-ème colonne $R_i$ de la matrice $R$ (en supposant que $P$ peut se décomposer sur $L$ et $R$ ce qui sera le cas en pratique) :
 
 
 \begin{eqnarray}
 \label{grad1}
-L_u & \leftarrow & L_u + \gamma_t\left(e_{ui}R_i^*-\lambda L_u  \right) \\
-R_i & \leftarrow & R_i  + \gamma_t\left(e_{ui}L_u^*-\lambda R_i  \right)
+L_u & \leftarrow & L_u + \gamma_t\left(e_{ui}R_i^*-\nabla_L P_L(L_u)  \right) \\
+R_i & \leftarrow & R_i  + \gamma_t\left(e_{ui}L_u^*-\nabla_R P_R(R_i)  \right)
 \label{grad2}
 \end{eqnarray}
 
 où $e_{ui} = M_{ui} -  \mu - b_u  - b_i-L_{u}R_{i} $ est l'erreur de prédiction.
 
-Le processus stochastique des exemples tirés au cours des itérations de l'algorithme est donc fortement corrélé à la manière dont on tire les exemples aléatoirement. Ici on espère que chacune des contributions (équation \eqref{grad}) se comportent comme la somme totale (descente de gradient usuelle), et ce malgré le bruit introduit par ces tirages.
+Le processus stochastique des exemples tirés au cours des itérations de l'algorithme est donc fortement corrélé à la manière dont on tire les exemples aléatoirement. Ici on espère que chacune des contributions (équation \eqref{grad}) se comportent comme la moyenne (descente de gradient usuelle), et ce malgré le bruit introduit par ces tirages.
 
 \subsubsection*{Tirage avec remise}
 
-Ici les tirages sont fait avec remise. De la sorte, en espérant que l'ensemble d'apprentissage est assez riche au sens de la distribution qu'il vise à représenter, on peut considérer qu'à chaque itération, les exemples sont tirés en suivant la véritable distribution des données. Intuitivement, on s'attend alors bien à ce que l'agrégation de toutes ces gradients ponctuels \eqref{grad} se comportent comme la somme totale (gradient usuel).
+Ici les tirages sont fait avec remise. De la sorte, en espérant que l'ensemble d'apprentissage est assez riche au sens de la distribution qu'il vise à représenter, on peut considérer qu'à chaque itération, les exemples sont tirés en suivant la véritable distribution des données. Intuitivement, on s'attend alors bien à ce que l'agrégation de toutes ces gradients ponctuels \eqref{grad} se comportent comme la moyenne (gradient total).
 
 Des résultats de convergences ont été prouvés en supposant que le pas d'incrément $\gamma_t$ décroit suffisamment au cours des itérations. Le théorème de Robbins-Siegmund (1971) permet notamment de prouver la convergence presque sure de la méthode avec des hypothèses assez lâches.
 
@@ -333,9 +333,9 @@ Dans le Tableau \ref{RMSE_vs_r} on donne le RMSE obtenu pour différentes valeur
   	\hline
   	\textbf{Algorithme} & SGD & \jel & SGD & \jel & SGD & \jel & Moyenne (naïf) \\
   	\hline
-  	\textbf{RMSE (1M)}  & 0.9146  & 0.9123 & 0.9114 & 0.9099 & 0.9042 & 0.8997 & 0.9598\\
+  	\textbf{RMSE (1M)}  & 0.9146  & 0.9023 & 0.9114 & 0.8999 & 0.9042 & 0.8997 & 0.9598\\
   	\hline
-  	\textbf{RMSE (10M)}  & X  & 0.8698 & X & 0.8652 & X & 0.8574 & 0.9062\\
+  	\textbf{RMSE (10M)}  & X  & 0.8592 & X & 0.8581 & X & 0.8574 & 0.9062\\
   	\hline
 \end{tabular}
 \end{center}
@@ -378,16 +378,7 @@ En Figure \ref{graph_best} on donne pour chaque note (comprise entre 1 et 5) la 
 
 \subsubsection*{Espace des facteur latents}
 
-Nous voyons dans le tableau \ref{RMSE_vs_r}, que la performance de notre algorithme augmente avec $r$, du moins au début (nous n'avons pas testé avec des $r$ trop grand pour éviter l'overfitting). Il est alors intéressant de se pencher sur les espaces engendrés par notre algorithme. 
-
-Une manière de visualiser les résultats est de chercher les points extrémaux de la matrice de films $R$ dans un espace à deux dimensions (projection sur deux coordonnées de la matrice $R$). L'intérêt de faire cela avec les films et que l'on peut commenter la pertinence du résultat en ayant une connaissance sur les films. En figure \ref{fac_lat} on représente un tel exemple obtenu avec notre algorithme.
-
-%\begin{figure}[ht!]
-%\begin{center}
-%\includegraphics[height=5cm]{fig/fac_lat.eps}
-%\caption{\label{graph_best} Un résultat de points extrémaux dans un espace de facteurs latents à deux dimensions. }
-%\end{center}
-%\end{figure}
+Nous voyons dans le tableau \ref{RMSE_vs_r}, que la performance de notre algorithme augmente avec $r$, du moins au début (nous n'avons pas testé avec des $r$ trop grand mais le risque ensuite devient l'overfitting). Il est alors intéressant de se pencher sur les espaces engendrés par notre algorithme. 
 
 % Blabla avec figure!
 
