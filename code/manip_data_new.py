@@ -165,20 +165,19 @@ def displayHisto(t_test,L,R):
 
 def propNoteGraph(data_test,b_u,b_i,mu,L,R):
     # Give the interesting graphic
-    data_test.index = range(data_test.shape[0])
     index_note = np.arange(1,6)
     count_1 = np.zeros([5,2])
     count_2 = np.zeros([5,2])
     notes = DataFrame(count_1,index=index_note,columns=['BON','MAUVAIS'])
     notes_naif = DataFrame(count_2,index=index_note,columns=['BON','MAUVAIS'])
     
-    for r in data_test.index:
+    for r in range(data_test.shape[0]):
 #        r_pred = round(mu + b_u[data_test.user_id.values[r]] + b_i[data_test.movie_id.values[r]] + X[data_test.user_id.values[r],data_test.movie_id.values[r]])           
-        mean = mu + b_u[data_test.user_id.values[r]] + b_i[data_test.movie_id.values[r]]        
-        r_pred = round(mean + np.dot(L[data_test.user_id.values[r],:],R[data_test.movie_id.values[r],:]))          
+        mean = mu + b_u[data_test[r,0]] + b_i[data_test[r,1]]        
+        r_pred = round(mean + np.dot(L[data_test[r,0],:],R[data_test[r,1],:]))          
         r_pred = min(5,r_pred)
         r_pred = max(1,r_pred)
-        r_true = int(round(mean+data_test.rating.values[r]))
+        r_true = int(round(mean+data_test[r,2]))
         r_naif = round(mean)
 
         if r_naif==r_true:
@@ -233,14 +232,14 @@ if __name__=='__main__':
     
     
 #    # Parameters for the stochastic gradient descent    
-#    alpha = 0.1
-#    gamma = 0.09
+    alpha = 0.1
+    gamma = 0.09
 ##    
     temp_D = time.clock()
     print('Gradient descent...')
     n_u = index_to_user.shape[0]
     n_i = index_to_movie.shape[0]
-    L,R = simple_sgd(n_u,n_i,triplet_train,alpha,gamma)
+#    L,R = simple_sgd(n_u,n_i,triplet_train,alpha,gamma)
     temp_T = time.clock()-temp_D
     print('Temps de de descente de gradient stochastique :')
 #    print(temp_T)
@@ -255,14 +254,13 @@ if __name__=='__main__':
 #    
 #    a = evaluate_model(L,R,triplet_test)
 
-    
+#    
     n_u = index_to_user.shape[0]
     n_i = index_to_movie.shape[0]
     L_z = np.random.random([n_u,30])
     R_z = np.random.random([n_i,30])
+#    
     
-    data_test = triplet.ix[ind_test] 
-    
-    notes_naifalgo = propNoteGraph(data_test,b_u,b_i,mu,L,R)
+    notes_naifalgo = propNoteGraph(triplet_test,b_u,b_i,mu,L_z,R_z)
 
     
