@@ -103,13 +103,13 @@ Cette dernière approche est celle que nous avons choisie d'étudier plus en dé
 
 Ces facteurs latents peuvent être parfois interprétables. Par exemple une dimension pourra représenter le fait pour un film d'être une comédie. Les points maximaux seront alors considérés comme des comédies alors que les points minimaux pourront être des drames. La position d'un utilisateur sur cet axe témoignera alors de la propension de celui-ci à aimer ce genre. 
 
-Cependant parfois ces facteurs ne sont pas interprétables directement, ce qui donne une certaine richesse au modèle. Cette méthode permet en effet de détecter des tendances qui n'auraient pas été prévisible à la main.
+Cependant parfois ces facteurs ne sont pas interprétables directement, ce qui donne une certaine richesse au modèle. Cette méthode permet en effet de détecter des tendances qui n'auraient pas été prévisibles à la main.
 
 Sur la droite de la Figure \ref{nmet} on a représenté cette approche pour 2 facteurs latents. De cela on peut prédire que l'utilisateur en haut à droite du graphique va certainement adorer le film \textit{Braveheart} alors qu'il va probablement détester le film \textit{The Princess Diaries}.
 
 \subsection{Factorisation de matrice}
 
-Une méthode populaire permettant de calculer ces facteur latents est de factoriser la partie connue de la matrice de notes $\textbf{M}$. On note $M_{u,i}$ la note qu'a mis l'utilisateur $u$ au produit $i$ ($u$ pour \textit{user} et $i$ pour \textit{item}). Dans le cas où l'on a $n_u$ utilisateurs et $n_i$ produits cette matrice est donc de taille $n_u\times n_i$. Le gros obstacle est que cette matrice de notation est parcimonieuse, non dans le sens où un grand nombre de ses coefficients sont nuls, mais dans le sens où bien souvent on ne possède qu'un certain nombre de produits pour lequel l'utilisateur a voté et beaucoup de coefficients sont inconnus. Le problème est donc celui de la \emph{complétion} de matrice, d'une manière pertinente vis-à-vis de notre problème. Dans la suite on note $\Omega$ le set d'indices pour lequel la notation est connue. On a donc $|\Omega|\ll n_u\times n_i$. 
+Une méthode populaire permettant de calculer ces facteur latents est de factoriser la partie connue de la matrice de notes $\textbf{M}$. On note $M_{ui}$ la note qu'a mis l'utilisateur $u$ au produit $i$ ($u$ pour \textit{user} et $i$ pour \textit{item}). Dans le cas où l'on a $n_u$ utilisateurs et $n_i$ produits cette matrice est donc de taille $n_u\times n_i$. Le gros obstacle est que cette matrice de notation est parcimonieuse, non dans le sens où un grand nombre de ses coefficients sont nuls, mais dans le sens où bien souvent on ne possède qu'un certain nombre de produits pour lequel l'utilisateur a voté et beaucoup de coefficients sont inconnus. Le problème est donc celui de la \emph{complétion} de matrice, d'une manière pertinente vis-à-vis de notre problème. Dans la suite on note $\Omega$ le set d'indices pour lequel la notation est connue. On a donc $|\Omega|\ll n_u\times n_i$. 
 
 L'idée va alors être de trouver une matrice $\textbf{X}$ qui va être \textit{proche dans un certain sens} de l'information contenue dans la matrice $\textbf{M}$ et qui va pouvoir s'écrire de manière factorisée :
 $$ \textbf{X} = \mathbf{LR} $$
@@ -119,7 +119,7 @@ Essayons maintenant de décrire plus formellement la notion de proximité entre 
 
 $$ f(\textbf{X}) = \sum_{(u,i)\in\Omega}\Vert X_{ui}-M_{ui} \Vert^2 $$
 
-Cependant, avec cette représentation, on ne prend pas en compte le biais naturel qui existe dans nos données \cite{koren}. En effet il est important de pouvoir modéliser le fait que certains utilisateurs sont plus sévères que d'autres pour noter les produits ou encore que certains produits sont parfois beaucoup mieux notés que la moyenne. Sans prendre en compte cela il devient difficile de modéliser les notes par un simple produit scalaire comme nous voulions le faire plus haut. Au lieu de représenter directement la note obtenue, on va préférer que le produit scalaire $X_{ui}$ représente l'écart à la note obtenue conte tenu du biais $b_{ui}$ que nous connaissons sur nos données :
+Cependant, avec cette représentation, on ne prend pas en compte le biais naturel qui existe dans nos données \cite{koren}. En effet il est important de pouvoir modéliser le fait que certains utilisateurs sont plus sévères que d'autres pour noter les produits ou encore que certains produits sont parfois beaucoup mieux notés que la moyenne. Sans prendre en compte cela il devient difficile de modéliser les notes par un simple produit scalaire comme nous voulions le faire plus haut. Au lieu de représenter directement la note obtenue, il est préférable que le produit scalaire $X_{ui}$ représente l'écart à la note obtenue compte tenu du biais $b_{ui}$ que nous connaissons sur nos données :
 
 $$b_{ui} = \mu + b_u  + b_i $$ 
 où $\mu$ est la moyenne totale des notes, $b_u$ est la moyenne des notes décernés par l'utilisateur $u$, et $b_i$ est la moyenne des notes obtenues par le produit $i$ (toutes deux calculées en terme d'écart par rapport à $\mu$). Tel quel $b_{ui}$ est déjà une sorte d'estimateur de la note que va mettre l'utilisateur $u$ au produit $i$. On verra dans la suite qu'il peut être intéressant de comparer nos résultats à ce système de recommandation très naïf. Ainsi on va réécrire notre fonction de coût d'attache aux données:
@@ -151,7 +151,7 @@ Dans un souci de généralisation de notation nous remplaçons l'équation \eqre
 
 \subsubsection*{Descente de gradient "usuelle"}
 
-Les algorithmes de gradient classique calculent à chaque étape $t$ le gradient complet de la fonction objectif par rapport à $\textbf{X}_t$ et mettent ensuite à jour $\textbf{X}_{t+1}$ en suivant différentes méthodes. L'une des plus efficaces en terme de convergence est la méthode de Newton qui sous certaines hypothèses parvient à une convergence quadratique. 
+Les algorithmes de gradient classiques calculent à chaque étape $t$ le gradient complet de la fonction objectif par rapport à $\textbf{X}_t$ et mettent ensuite à jour $\textbf{X}_{t+1}$ en suivant différentes méthodes. Les méthodes les plus efficaces en terme de convergence sont les méthodes du second ordre (type Newton) qui, sous certaines hypothèses parviennent à une convergence quadratique. 
 
 Cependant lorsque $| \Omega |$ devient très grand (ici 1 million voire 10 millions) il devient très coûteux de faire les étapes de calculs précédentes. On préférera alors une méthode plus simple comme l'algorithme SGD.
 
@@ -181,7 +181,7 @@ Le processus stochastique des exemples tirés au cours des itérations de l'algo
 
 \subsubsection*{Tirage avec remise}
 
-Ici les tirages sont fait avec remise. De la sorte, en espérant que l'ensemble d'apprentissage est assez riche au sens de la distribution qu'il vise à représenter, on peut considérer qu'à chaque itération, les exemples sont tirés en suivant la véritable distribution des données. Intuitivement, on s'attend alors bien à ce que l'agrégation de toutes ces gradients ponctuels \eqref{grad} se comportent comme la somme totale (gradient usuel).
+Ici les tirages sont faits avec remise. De la sorte, en espérant que l'ensemble d'apprentissage est assez riche au sens de la distribution qu'il vise à représenter, on peut considérer qu'à chaque itération, les exemples sont tirés en suivant la véritable distribution des données. Intuitivement, on s'attend alors bien à ce que l'agrégation de tous ces gradients ponctuels \eqref{grad} se comportent comme la somme totale (gradient usuel).
 
 Des résultats de convergences ont été prouvés en supposant que le pas d'incrément $\gamma_t$ décroit suffisamment au cours des itérations. Le théorème de Robbins-Siegmund (1971) permet notamment de prouver la convergence presque sure de la méthode avec des hypothèses assez lâches \cite{bottouSGD}.
 
@@ -207,7 +207,7 @@ a=\left \lfloor \frac{p}{n_u}(\pi_u(u)-1) \right \rfloor +1 \quad \quad b=\left 
 
 Au sein de chaque bloc, une étape de descente de gradient \eqref{grad} est réalisée sur chaque coordonnée. Le tirage sans remise est induit par les permutations: il est possible de traiter les données directement dans l'ordre dans lequel elles ont été "rangées" dans les blocs lorsque l'on parcoure $\Omega$ et que l'on applique \eqref{index}.
 
-Il est possible de traiter en parallèle jusqu'à $p$ blocs ne s'intersectant pas en une \emph{étape}, puis de réaliser $p$ étapes afin de traiter toutes les données. Les blocs sont par exemple groupés selon les $p$ diagonales cycliques (Fig. \ref{blocs}). Ainsi, il est naturel de fixer $p$ au nombre maximum de processus pouvant être lancé (nombre de cœurs d'un processeur pour un ordinateur seul).
+Il est possible de traiter en parallèle jusqu'à $p$ blocs ne s'intersectant pas en une \emph{étape}, puis de réaliser $p$ étapes afin de traiter toutes les données. Les blocs sont par exemple groupés selon les $p$ diagonales cycliques (Fig. \ref{blocs}). Ainsi, il est naturel de fixer $p$ au nombre maximum de processus pouvant être lancés (nombre de cœurs d'un processeur pour un ordinateur seul).
 
 \begin{figure}
 \centering
@@ -239,7 +239,7 @@ Nous présenterons nos résultats sous deux aspects. La première partie concern
 % Le nom peut changer :)
 
 \subsubsection*{Fonction objectif}
-Dans un premier temps, nous comparons la convergence des deux algorithmes en examinant la fonction objectif \eqref{objectif}. Puisque \jel ne permet de calculer cette fonction qu'entre chaque époque, nous n'enregistrons également cette valeur qu'aux itérations multiples de $|\Omega|$ pour l'algorithme simple SGD. Rappelons que la seule différence entre les deux algorithmes est alors le tirage des indices, avec ou sans remise. Ces résultats sont présentés Figure \ref{obj_samp}. On constate que, toutes proportions gardées, il y a extrêmement peu de différence entre les deux approches, même en échelle logarithmique. Néanmoins, si l'on supprime la toute première valeur de la fonction objectif (avant l'exécution des algorithmes) et que l'on agrandit les courbes, \jel obtient des performances légèrement meilleures; dans le cas présent il parvient même à rattraper son retard après une époque. Ce comportement a été systématiquement observé dans toutes les simulations, et contredit empiriquement l'avantage théorique donné au tirage avec remise.
+Dans un premier temps, nous comparons la convergence des deux algorithmes en examinant la fonction objectif \eqref{objectif}. Puisque \jel ne permet de calculer cette fonction qu'entre chaque époque, nous n'enregistrons également cette valeur qu'aux itérations multiples de $|\Omega|$ pour l'algorithme simple SGD. Rappelons que la seule différence entre les deux algorithmes est alors le tirage des indices, avec ou sans remise. Ces résultats sont présentés en Figure \ref{obj_samp}. On constate que, toutes proportions gardées, il y a extrêmement peu de différence entre les deux approches, même en échelle logarithmique. Néanmoins, si l'on supprime la toute première valeur de la fonction objectif (avant l'exécution des algorithmes) et que l'on agrandit les courbes, \jel obtient des performances légèrement meilleures; dans le cas présent il parvient même à rattraper son retard après une époque. Ce comportement a été systématiquement observé dans toutes les simulations, et contredit empiriquement l'avantage théorique donné au tirage avec remise.
 
 \begin{figure}[h]
 \centering
@@ -249,7 +249,7 @@ Dans un premier temps, nous comparons la convergence des deux algorithmes en exa
 \label{obj_samp}
 \end{figure}
 
-Il est également intéressant d'examiner la vitesse de convergence en fonction du pas de gradient $\gamma$ (Fig. \ref{obj_gamma}). Comme attendu, plus celui-ci est grand, plus la convergence est rapide. Néanmoins, il faut bien entendu être prudent: passé une certaine valeur (environ 0.4 dans nos simulations), l'algorithme ne converge plus et souvent les valeurs explosent à l'infini.
+Il est également intéressant d'examiner la vitesse de convergence en fonction du pas de gradient $\gamma$ (Fig. \ref{obj_gamma}). Comme attendu, plus celui-ci est grand, plus la convergence est rapide. Néanmoins, il faut bien entendu être prudent: passé une certaine valeur (environ 0.4 dans nos simulations), l'algorithme ne converge plus et souvent les valeurs explosent à l'infini. Dans la suite on utilisera $\lambda=0.1$ (qui empiriquement donne de bons résultats) et $\gamma=0.04$. Le nombre d'itérations de l'algorithme SGD est fixé à $3|\Omega|\log(|\Omega|)$ et le nombre d'époques de \jel est fixé à 30.
 
 \begin{figure}[h]
 \centering
@@ -294,13 +294,13 @@ En résumé, \jel est de $5$ à $6$ fois plus rapide que SGD pour des résultats
 \subsection{Résultats sur la base de données de films}
 % Il faudra aussi parler des différents paramètres r...
 
-Le premier point important est de constituer une base de test afin d'évaluer notre algorithme. Lors de la constitution de cette base de tests, il faut prendre soin de ne pas retirer toutes les notes d'un même utilisateur ou toutes les notes d'un même film. Dans le cas contraire on perd toute l'information sur cet utilisateur ou sur ce film. La stratégie que nous avons adopté est de retirer $n$ notes par utilisateurs en espérant que toutes les notes d'un même film ne soient pas retirées (une vérification avant chaque test est nécessaire). En pratique $n=1,2$, ce qui nous permet d'avoir une base de test assez conséquente.
+Le premier point important est de constituer une base de test afin d'évaluer notre algorithme. Lors de la constitution de cette base, il faut prendre soin de ne pas retirer toutes les notes d'un même utilisateur ou toutes les notes d'un même film. Dans le cas contraire on perd toute l'information sur cet utilisateur ou sur ce film. La stratégie que nous avons adopté est de retirer $n$ notes par utilisateurs en espérant que toutes les notes d'un même film ne soient pas retirées (une vérification avant chaque test est nécessaire). En pratique $n=1,2$, ce qui nous permet d'avoir une base de test assez conséquente.
 
 \subsubsection*{Critères d'évaluation}
 
 \paragraph{RMSE}
 
-Afin d'évaluer la pertinence de notre algorithme nous avons regardé plusieurs facteurs. Le premier critère chiffrée est le RMSE (pour \textit{Root Mean Square Error}):
+Afin d'évaluer la pertinence de notre algorithme nous avons regardé plusieurs facteurs. Le premier critère chiffré est le RMSE (pour \textit{Root Mean Square Error}):
 
 $$ \text{RMSE} = \sqrt{\frac{1}{|\Omega_{\text{test}|}}\sum_{(u,i)\in \Omega_{\text{test}}} |X_{ui}+b_{ui}-M_{ui}|^2} $$
 
@@ -377,7 +377,7 @@ Nous voyons que le paramètre $r$ joue un rôle important dans la performance de
 
 Une manière de visualiser les résultats est de chercher les points extrémaux de la matrice de films $R$ dans un espace à deux dimensions (projection sur deux coordonnées de la matrice $R$). L'intérêt de faire cela avec les films et que l'on peut commenter la pertinence du résultat en ayant une connaissance sur les films. En figure \ref{fac_lat} on représente un tel exemple obtenu avec notre algorithme. Sur cet exemple on peut s'imaginer que l'axe des abscisses correspond à la manière de représenter la violence à l'écran et que l'axe des ordonnées correspond au degré de science fiction.
 
-En effet \textit{Carnosaur 2} et \textit{Godzilla} sont tous deux des films de science fiction alors que The General et Dead Man sont plus des films réalistes. D'autre part \textit{Carnosaur 2} et \textit{The General} n'hésitent pas à montrer la violence de manière crue alors qu'elle est abordée de manière plus "familiale" dans Godzilla et Dead Man.
+En effet \textit{Carnosaur 2} et \textit{Godzilla} sont tous deux des films de science fiction alors que \textit{The General} et \textit{Dead Man} sont plus des films réalistes. D'autre part \textit{Carnosaur 2} et \textit{The General} n'hésitent pas à montrer la violence de manière crue alors qu'elle est abordée de manière plus "familiale" dans \textit{Godzilla} et \textit{Dead Man}.
 
 Cette analyse ne s'applique pas à tous les facteurs latents ainsi créés mais il est intéressant de voir que la machine puisse retrouver des tendances explicables par l'humain.
 
@@ -410,7 +410,7 @@ Cependant on est aussi en droit de se demander si, du point de vue de l'utilisat
 
 %\newpage
 \section*{Conclusion}
-Le traitement de bases de données de très grande dimension et les systèmes de recommandation représentent un domaine en pleine effervescence aussi bien d'un point de vue expérimental que théorique. Le challenge Netflix s'est finalement révélé être une stimulation importante de la recherche de ces quelques dernières années sur le sujet, et représente bien les enjeux industriels considérables derrière ces travaux. Une lumière nouvelle est jetée sur des algorithmes déjà introduits il y a une quinzaine d'années tel que la descente de gradient stochastique, et ceux-ci connaissent un regain d'intérêt aussi bien pratique que mathématique.
+Le traitement de bases de données de très grande dimension et les systèmes de recommandation représentent un domaine en pleine effervescence aussi bien d'un point de vue expérimental que théorique. Le challenge Netflix a finalement stimulé de manière importante la recherche de ces quelques dernières années sur le sujet, et représente bien les enjeux industriels considérables derrière ces travaux. Une lumière nouvelle est jetée sur des algorithmes déjà introduits il y a une quinzaine d'années tel que la descente de gradient stochastique, et ceux-ci connaissent un regain d'intérêt aussi bien pratique que mathématique.
 
 Lors de ce projet, nous avons implémenté deux versions de la descente de gradient stochastique qui diffèrent principalement par le temps de calcul bien moindre de la version parallélisée, ce qui est une donnée nouvelle mais essentielle lorsque l'on considère le traitement de grande bases de données. Ces algorithmes ont été testés sur des bases de données relativement importantes pour lesquelles le temps de calcul est resté tout à fait raisonnable, en particulier pour l'algorithme \jel qui est jusqu'à six fois plus rapide que la version simple. Nous sommes conscients qu'une étude plus poussée de cet algorithme serait requise afin d'en comprendre vraiment tous les mécanismes, cela demanderait cependant plus de temps et du matériel plus performant. 
 

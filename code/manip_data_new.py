@@ -134,15 +134,15 @@ def draw2DMovies(R,index_to_movie,movies,dim_x=0,dim_y=1):
     i_z = argmin(abs(val_x)+abs(val_y))
     print(i_z)
     #Upper right
-    plt.text(val_x[i_ur],val_y[i_ur],movies.title[movies.movie_id==i_ur].values[0])
+    plt.text(val_x[i_ur],val_y[i_ur],movies.genres[movies.movie_id==i_ur].values[0])
     #Bottom Left
-    plt.text(val_x[i_bl],val_y[i_bl],movies.title[movies.movie_id==i_bl].values[0])
+    plt.text(val_x[i_bl],val_y[i_bl],movies.genres[movies.movie_id==i_bl].values[0])
     #Upper left
-    plt.text(val_x[i_ul],val_y[i_ul],movies.title[movies.movie_id==i_ul].values[0])
+    plt.text(val_x[i_ul],val_y[i_ul],movies.genres[movies.movie_id==i_ul].values[0])
     #Bottom right
-    plt.text(val_x[i_br],val_y[i_br],movies.title[movies.movie_id==i_br].values[0])
+    plt.text(val_x[i_br],val_y[i_br],movies.genres[movies.movie_id==i_br].values[0])
     #Around zero
-    plt.text(val_x[i_z],val_y[i_z],movies.title[movies.movie_id==i_z].values[0])
+    plt.text(val_x[i_z],val_y[i_z],movies.genres[movies.movie_id==i_z].values[0])
     
     plt.show()
 
