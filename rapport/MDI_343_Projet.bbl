@@ -24,6 +24,11 @@ Benjamin Recht and Christopher R{\'{e}}.
   Completion}.
 \newblock {\em submitted}, 2011.
 
+\bibitem{nedic_base}
+Angelia Nedic and Dimitri~P. Bertsekas.
+\newblock Incremental subgradient methods for nondifferentiable optimization.
+\newblock {\em SIAM J. on Optimization}, 12(1):109--138, January 2001.
+
 \bibitem{nedic}
 Angelia Nedic and Dimitri Bertsekas.
 \newblock Convergence rate of incremental subgradient algorithms.
@@ -36,5 +41,11 @@ Rainer Gemulla, Erik Nijkamp, Peter~J. Haas, and Yannis Sismanis.
   descent.
 \newblock In Chid Apté, Joydeep Ghosh, and Padhraic Smyth, editors, {\em KDD},
   pages 69--77. ACM, 2011.
+
+\bibitem{blog}
+Ian Clarke.
+\newblock Netflix prize -- is rmse a good measurement ?, December 2007.
+\newblock URL:
+  \url{http://blog.locut.us/2007/12/17/netflix-prize-is-rmse-a-good-measurement/}.
 
 \end{thebibliography}
