@@ -227,40 +227,44 @@ if __name__=='__main__':
     triplet_train = np.delete(list_triplet,ind_test,0)
     
     
+ 
+    R = np.loadtxt('R1m_10')
+    
+    draw2DMovies(R,index_to_movie,movies,dim_x=2,dim_y=8)
    
 
-    
-    
-#    # Parameters for the stochastic gradient descent    
-    alpha = 0.1
-    gamma = 0.09
+#    
+#    
+##    # Parameters for the stochastic gradient descent    
+#    alpha = 0.1
+#    gamma = 0.09
+###    
+#    temp_D = time.clock()
+#    print('Gradient descent...')
+#    n_u = index_to_user.shape[0]
+#    n_i = index_to_movie.shape[0]
+##    L,R = simple_sgd(n_u,n_i,triplet_train,alpha,gamma)
+#    temp_T = time.clock()-temp_D
+#    print('Temps de de descente de gradient stochastique :')
+##    print(temp_T)
 ##    
-    temp_D = time.clock()
-    print('Gradient descent...')
-    n_u = index_to_user.shape[0]
-    n_i = index_to_movie.shape[0]
-#    L,R = simple_sgd(n_u,n_i,triplet_train,alpha,gamma)
-    temp_T = time.clock()-temp_D
-    print('Temps de de descente de gradient stochastique :')
-#    print(temp_T)
+##    L_z = np.zeros([n_u,30])
+##   R_z = np.zeros([n_i,30])    
+##    
+####    L,R=jlf.jellyfish(triplet_train,alpha,gamma,nb_epochs=13)
+###    temp_total = time.clock()-temp_D
+##    displayHisto(triplet_test,L,R)
+##    draw2DMovies(R,index_to_movie,movies,dim_x=6,dim_y=9)
+##    
+##    a = evaluate_model(L,R,triplet_test)
+#
+##    
+#    n_u = index_to_user.shape[0]
+#    n_i = index_to_movie.shape[0]
+#    L_z = np.random.random([n_u,30])
+#    R_z = np.random.random([n_i,30])
+##    
 #    
-#    L_z = np.zeros([n_u,30])
-#   R_z = np.zeros([n_i,30])    
+#    notes_naifalgo = propNoteGraph(triplet_test,b_u,b_i,mu,L_z,R_z)
+#
 #    
-###    L,R=jlf.jellyfish(triplet_train,alpha,gamma,nb_epochs=13)
-##    temp_total = time.clock()-temp_D
-#    displayHisto(triplet_test,L,R)
-#    draw2DMovies(R,index_to_movie,movies,dim_x=6,dim_y=9)
-#    
-#    a = evaluate_model(L,R,triplet_test)
-
-#    
-    n_u = index_to_user.shape[0]
-    n_i = index_to_movie.shape[0]
-    L_z = np.random.random([n_u,30])
-    R_z = np.random.random([n_i,30])
-#    
-    
-    notes_naifalgo = propNoteGraph(triplet_test,b_u,b_i,mu,L_z,R_z)
-
-    

@@ -2,7 +2,7 @@
 \contentsline {section}{Introduction}{2}
 \contentsline {section}{\numberline {1}Pr\IeC {\'e}sentation du probl\IeC {\`e}me et notations}{3}
 \contentsline {subsection}{\numberline {1.1}Diff\IeC {\'e}rentes m\IeC {\'e}thodes}{3}
-\contentsline {paragraph}{\textit {Neighborhood methods}}{3}
+\contentsline {paragraph}{\textit {Neighborhood methods}}{4}
 \contentsline {paragraph}{\textit {Latent factor model}}{4}
 \contentsline {subsection}{\numberline {1.2}Factorisation de matrice}{4}
 \contentsline {section}{\numberline {2}Algorithmes}{5}
@@ -11,6 +11,6 @@
 \contentsline {section}{\numberline {3}R\IeC {\'e}sultats}{8}
 \contentsline {subsection}{\numberline {3.1}Performance des deux approches}{8}
 \contentsline {subsection}{\numberline {3.2}R\IeC {\'e}sultats sur la base de donn\IeC {\'e}es de films}{10}
-\contentsline {paragraph}{RMSE}{10}
+\contentsline {paragraph}{RMSE}{11}
 \contentsline {paragraph}{Histogramme d'erreur}{11}
 \contentsline {paragraph}{Affichage des facteurs latents}{11}

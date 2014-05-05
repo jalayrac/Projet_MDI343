@@ -86,8 +86,8 @@ Dans ce contexte de \textit{collaborative filtering} il existe à nouveau deux p
 
 \begin{figure}[ht!]
 \begin{center}
-\includegraphics[height=5cm]{fig/neighboor_representation.png}
-\includegraphics[height=5cm]{fig/factor_representation.png}
+\includegraphics[height=6cm]{fig/neighboor_representation.png}
+\includegraphics[height=6cm]{fig/factor_representation.png}
 \caption{\label{nmet} A gauche : \textit{neighborhood methods}, A droite : \textit{Latent factor models}. Figure tirée de \cite{koren}.}
 \end{center}
 \end{figure}
@@ -211,7 +211,7 @@ Il est possible de traiter en parallèle jusqu'à $p$ blocs ne s'intersectant pa
 
 \begin{figure}
 \centering
-\includegraphics[width=0.8\textwidth]{fig/blocs}
+\includegraphics[width=\textwidth]{fig/blocs}
 \caption{Partition cyclique des blocs (pour question de simplicité, ici $\pi_u$ et $\pi_i$ sont les permutations identités). Les blocs surlignés de la même manière sont traités en parallèle. Schéma issu de \cite{jelly}.}
 \label{blocs}
 \end{figure}
@@ -373,16 +373,20 @@ En Figure \ref{histo_best}, on donne l'histogramme des erreurs obtenu pour le pl
 
 \subsubsection*{Espace des facteur latents}
 
-Nous voyons dans le tableau \ref{RMSE_vs_r}, que la performance de notre algorithme augmente avec $r$, du moins au début (nous n'avons pas testé avec des $r$ trop grand pour éviter l'overfitting). Il est alors intéressant de se pencher sur les espaces engendrés par notre algorithme. 
+Nous voyons que le paramètre $r$ joue un rôle important dans la performance de notre algorithme du moins au début (voir Tableau \ref{RMSE_vs_r}). Au delà d'un certain seuil, l'algorithme n'arrive pas à trouver plus de facteurs latents déterminants dans l'objectif de recommandation. Il est alors intéressant de se pencher sur les espaces engendrés par notre algorithme. 
 
-Une manière de visualiser les résultats est de chercher les points extrémaux de la matrice de films $R$ dans un espace à deux dimensions (projection sur deux coordonnées de la matrice $R$). L'intérêt de faire cela avec les films et que l'on peut commenter la pertinence du résultat en ayant une connaissance sur les films. En figure \ref{fac_lat} on représente un tel exemple obtenu avec notre algorithme.
+Une manière de visualiser les résultats est de chercher les points extrémaux de la matrice de films $R$ dans un espace à deux dimensions (projection sur deux coordonnées de la matrice $R$). L'intérêt de faire cela avec les films et que l'on peut commenter la pertinence du résultat en ayant une connaissance sur les films. En figure \ref{fac_lat} on représente un tel exemple obtenu avec notre algorithme. Sur cet exemple on peut s'imaginer que l'axe des abscisses correspond à la manière de représenter la violence à l'écran et que l'axe des ordonnées correspond au degré de science fiction.
 
-%\begin{figure}[ht!]
-%\begin{center}
-%\includegraphics[height=5cm]{fig/fac_lat.eps}
-%\caption{\label{graph_best} Un résultat de points extrémaux dans un espace de facteurs latents à deux dimensions. }
-%\end{center}
-%\end{figure}
+En effet \textit{Carnosaur 2} et \textit{Godzilla} sont tous deux des films de science fiction alors que The General et Dead Man sont plus des films réalistes. D'autre part \textit{Carnosaur 2} et \textit{The General} n'hésitent pas à montrer la violence de manière crue alors qu'elle est abordée de manière plus "familiale" dans Godzilla et Dead Man.
+
+Cette analyse ne s'applique pas à tous les facteurs latents ainsi créés mais il est intéressant de voir que la machine puisse retrouver des tendances explicables par l'humain.
+
+\begin{figure}[ht!]
+\begin{center}
+\includegraphics[width=0.9\linewidth]{fig/fac_lat.png}
+\caption{\label{fac_lat} Un résultat de points extrémaux dans un espace de facteurs latents à deux dimensions. }
+\end{center}
+\end{figure}
 
 % Blabla avec figure!
 
@@ -412,7 +416,7 @@ Lors de ce projet, nous avons implémenté deux versions de la descente de gradi
 
 Cependant la pertinence des algorithmes dans un objectif de recommandation a bien été observée, malgré les différences parfois faibles en terme d'erreurs avec une approche naïve. Néanmoins il est possible de questionner les résultats réels du point de vue de l'utilisateur, et la compréhension des liens existant entre résultats mathématiques et mise en œuvre industrielle reste à développer.
 
-%\newpage
+\newpage
 \bibliographystyle{unsrturl}
 \bibliography{biblio}
 \end{document}

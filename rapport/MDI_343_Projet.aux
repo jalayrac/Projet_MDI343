@@ -17,22 +17,22 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.1}Diff\IeC {\'e}rentes m\IeC {\'e}thodes}{3}}
 \@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces  A gauche : \textit  {neighborhood methods}, A droite : \textit  {Latent factor models}. Figure tir\IeC {\'e}e de \cite  {koren}.}}{3}}
 \newlabel{nmet}{{1}{3}}
-\@writefile{toc}{\contentsline {paragraph}{\textit  {Neighborhood methods}}{3}}
 \citation{koren}
+\@writefile{toc}{\contentsline {paragraph}{\textit  {Neighborhood methods}}{4}}
 \@writefile{toc}{\contentsline {paragraph}{\textit  {Latent factor model}}{4}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.2}Factorisation de matrice}{4}}
 \citation{bottouSGD}
 \citation{bottou}
-\citation{koren}
 \newlabel{objectif}{{1}{5}}
 \@writefile{toc}{\contentsline {section}{\numberline {2}Algorithmes}{5}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Descente de gradient stochastique}{5}}
 \newlabel{objectif2}{{2}{5}}
-\newlabel{grad}{{3}{5}}
+\citation{koren}
 \citation{bottouSGD}
 \citation{jelly}
 \citation{jelly}
 \citation{nedic_base}
+\newlabel{grad}{{3}{6}}
 \newlabel{grad1}{{4}{6}}
 \newlabel{grad2}{{5}{6}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Algorithme parall\IeC {\'e}lis\IeC {\'e} \textsc  {Jellyfish} }{6}}
@@ -43,10 +43,10 @@
 \citation{nedic}
 \citation{bottou}
 \citation{nedic}
-\citation{gemulla_distri}
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Partition cyclique des blocs (pour question de simplicit\IeC {\'e}, ici $\pi _u$ et $\pi _i$ sont les permutations identit\IeC {\'e}s). Les blocs surlign\IeC {\'e}s de la m\IeC {\^e}me mani\IeC {\`e}re sont trait\IeC {\'e}s en parall\IeC {\`e}le. Sch\IeC {\'e}ma issu de \cite  {jelly}.}}{7}}
 \newlabel{blocs}{{2}{7}}
 \newlabel{index}{{6}{7}}
+\citation{gemulla_distri}
 \citation{jelly}
 \@writefile{toc}{\contentsline {section}{\numberline {3}R\IeC {\'e}sultats}{8}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Performance des deux approches}{8}}
@@ -57,18 +57,20 @@
 \@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Temps d'ex\IeC {\'e}cution par \IeC {\'e}poque en fonction de $p$, pour $r=30$. Le temps d'ex\IeC {\'e}cution d'une \IeC {\'e}poque de SGD est indiqu\IeC {\'e}, ainsi que le temps pris par le processus de permutation des donn\IeC {\'e}es.}}{10}}
 \newlabel{time}{{5}{10}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2}R\IeC {\'e}sultats sur la base de donn\IeC {\'e}es de films}{10}}
-\@writefile{toc}{\contentsline {paragraph}{RMSE}{10}}
+\@writefile{toc}{\contentsline {paragraph}{RMSE}{11}}
 \@writefile{toc}{\contentsline {paragraph}{Histogramme d'erreur}{11}}
 \@writefile{toc}{\contentsline {paragraph}{Affichage des facteurs latents}{11}}
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces RMSE obtenu par \textsc  {Jellyfish} sur la base \IeC {\`a} 1 million d'entr\IeC {\'e}es en fonction de $r$.}}{11}}
-\newlabel{rmse_r}{{6}{11}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces RMSE obtenu par \textsc  {Jellyfish} sur la base \IeC {\`a} 1 million d'entr\IeC {\'e}es en fonction de $r$.}}{12}}
+\newlabel{rmse_r}{{6}{12}}
 \@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces  Valeurs du RMSE pour diff\IeC {\'e}rentes valeurs de $r$}}{12}}
 \newlabel{RMSE_vs_r}{{1}{12}}
-\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces  Histogrammes d'erreur. Gauche: 1M, droite: 10M}}{12}}
-\newlabel{histo_best}{{7}{12}}
 \citation{blog}
-\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces  Proportion de bonnes pr\IeC {\'e}dictions en fonction de chaque note. Gauche: 1M, droite: 10M.}}{13}}
-\newlabel{graph_best}{{8}{13}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces  Histogrammes d'erreur. Gauche: 1M, droite: 10M}}{13}}
+\newlabel{histo_best}{{7}{13}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces  Un r\IeC {\'e}sultat de points extr\IeC {\'e}maux dans un espace de facteurs latents \IeC {\`a} deux dimensions. }}{13}}
+\newlabel{fac_lat}{{8}{13}}
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces  Proportion de bonnes pr\IeC {\'e}dictions en fonction de chaque note. Gauche: 1M, droite: 10M.}}{14}}
+\newlabel{graph_best}{{9}{14}}
 \bibstyle{unsrturl}
 \bibdata{biblio}
 \bibcite{koren}{1}
