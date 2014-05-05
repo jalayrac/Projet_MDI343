@@ -7,19 +7,21 @@
 \usepackage{amssymb}
 \usepackage{graphicx}
 \usepackage{epstopdf}
+\usepackage[top=1.8in, bottom=1.3in, left=0.8in, right=0.8in,headheight=35pt]{geometry}
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 \usepackage{cite}
 \usepackage{epsfig}
+\usepackage{url}
 
-
-\renewcommand{\headrulewidth}{1pt}
+%\renewcommand{\headrulewidth}{1pt}
 
 \fancyhead[R]{} 
 \fancyhead[L]{\textit{\leftmark}}
+\fancyfoot[C] {\thepage}
 
-\addtolength{\hoffset}{-1.5cm}
-\addtolength{\textwidth}{3.5cm}
+%\addtolength{\hoffset}{-2cm}
+%\addtolength{\textwidth}{4.5cm}
 
 \title{Projet MDI 343 \\
 Systèmes de recommandation}
@@ -57,11 +59,9 @@ Systèmes de recommandation}
  
  Le challenge Netflix a mis en avant la problématique de créer de bons systèmes de recommandation. A l'heure où l'on est en mesure d'agréger énormément d'informations sur les utilisateurs, leurs préférences, leurs attitudes, il est légitime de se demander s'il est possible de traiter ces données afin d'améliorer l'expérience de l'utilisateur en lui proposant de nouveaux produits qui vont lui plaire.
  
- Dans ce contexte beaucoup de méthodes ont été mises à l'épreuve afin de créer le système de recommandation le plus performant. Les techniques de factorisation de matrice se sont démarquées et ont notamment permis à l'équipe \textit{BellKor's Pragmatic Chaos} de remporter le prix d'un million de dollar décerné par Netflix \cite{koren}.
+ Dans ce contexte beaucoup de méthodes ont été mises à l'épreuve afin de créer le système de recommandation le plus performant. Les techniques de factorisation de matrice se sont démarquées et ont notamment permis à l'équipe \textit{BellKor's Pragmatic Chaos} de remporter le prix d'un million de dollar décerné par Netflix \cite{koren}. On s'intéresse ici aux méthodes mathématiques et algorithmiques qui permettent de factoriser efficacement un grand ensemble de notations afin de prédire les préférences d'utilisateurs pour des films.
  
- On s'intéresse ici aux méthodes mathématiques et algorithmiques qui permettent de traiter efficacement un grand ensemble de notations afin de prédire les préférences d'utilisateurs pour des films.
- 
- Dans un premier temps nous présenterons le problème et son cadre mathématique. Nous introduirons ensuite les algorithmes que nous avons implémenté afin de résoudre numériquement le problème. Enfin nous commenterons nos résultats en gardant en tête l'objectif de recommandation.
+Dans ce cadre, la descente de gradient stochastique \cite{bottouSGD} a récemment connu un grand regain d'intérêt, en se révélant rapide, efficace et d'une extrême scalabilité, malgré sa simplicité apparente. De nombreux résultats lui garantissent une bonne convergence, théoriquement sans même avoir besoin de parcourir toutes les données \cite{bottou}. Dans \cite{jelly}, les auteurs proposent une version parallèle et lock-free de cet algorithme baptisée \textsc{Jellyfish}, basée sur la présence de nombreuses opérations indépendantes dans le déroulement de l'algorithme. Après avoir présenté le problème et son cadre mathématique, nous introduirons et comparerons numériquement ces deux approches. Enfin nous commenterons nos résultats en gardant en tête l'objectif de recommandation.
 \newpage
 
 
@@ -71,7 +71,7 @@ Le cadre général de la problématique de recommandation est de relier des util
 
 \subsection{Différentes méthodes}
 
-Actuellement, il existe deux principales approches afin de  créer un système de recommandation. La première approche est appelée \textit{content filtering} alors que la seconde est nommée \textit{collaborative filtering}
+Actuellement, il existe deux principales approches afin de  créer un système de recommandation. La première approche est appelée \textit{content filtering} alors que la seconde est nommée \textit{collaborative filtering}.
 
 \subsubsection*{\textit{Content filtering} (ou filtrage par contenu)}
 
@@ -88,7 +88,7 @@ Dans ce contexte de \textit{collaborative filtering} il existe à nouveau deux p
 \begin{center}
 \includegraphics[height=5cm]{fig/neighboor_representation.png}
 \includegraphics[height=5cm]{fig/factor_representation.png}
-\caption{\label{nmet} A gauche : \textit{neighborhood methods}, A droite : \textit{Latent factor models}}
+\caption{\label{nmet} A gauche : \textit{neighborhood methods}, A droite : \textit{Latent factor models}. Figure tirée de \cite{koren}.}
 \end{center}
 \end{figure}
 
@@ -105,27 +105,24 @@ Ces facteurs latents peuvent être parfois interprétables. Par exemple une dime
 
 Cependant parfois ces facteurs ne sont pas interprétables directement, ce qui donne une certaine richesse au modèle. Cette méthode permet en effet de détecter des tendances qui n'auraient pas été prévisible à la main.
 
-Sur la droite de la Figure 2 on a représenté cette approche pour 2 facteurs latents. De cela on peut prédire que l'utilisateur en haut à droite du graphique va certainement adorer le film \textit{Braveheart} alors qu'il va probablemnet détester le film \textit{The Princess Diaries}.
+Sur la droite de la Figure \ref{nmet} on a représenté cette approche pour 2 facteurs latents. De cela on peut prédire que l'utilisateur en haut à droite du graphique va certainement adorer le film \textit{Braveheart} alors qu'il va probablement détester le film \textit{The Princess Diaries}.
 
 \subsection{Factorisation de matrice}
 
-Nous allons voir qu'une méthode afin de calculer ces facteur latents est de factoriser la partie connue de la matrice de notes $\textbf{M}$. On rappelle que $\textbf{M}_{u,i}$ est la note qu'a mis l'utilisateur $u$ au produit $i$ ($u$ pour \textit{user} et $i$ pour \textit{item}). Dans le cas où l'on a $n_u$ utilisateurs et $n_i$ produits cette matrice est donc de taille $n_u\times n_i$. Le gros obstacle est que cette matrice de notation est parcimonieuse, en effet bien souvent on ne possède qu'un certain nombre de produits pour lequel l'utilisateur a voté. Dans la suite on note $\Omega$ le set d'indices pour lequel la notation est connue. On a donc $|\Omega|\ll n_u\times n_i$. 
+Une méthode populaire permettant de calculer ces facteur latents est de factoriser la partie connue de la matrice de notes $\textbf{M}$. On note $M_{u,i}$ la note qu'a mis l'utilisateur $u$ au produit $i$ ($u$ pour \textit{user} et $i$ pour \textit{item}). Dans le cas où l'on a $n_u$ utilisateurs et $n_i$ produits cette matrice est donc de taille $n_u\times n_i$. Le gros obstacle est que cette matrice de notation est parcimonieuse, non dans le sens où un grand nombre de ses coefficients sont nuls, mais dans le sens où bien souvent on ne possède qu'un certain nombre de produits pour lequel l'utilisateur a voté et beaucoup de coefficients sont inconnus. Le problème est donc celui de la \emph{complétion} de matrice, d'une manière pertinente vis-à-vis de notre problème. Dans la suite on note $\Omega$ le set d'indices pour lequel la notation est connue. On a donc $|\Omega|\ll n_u\times n_i$. 
 
 L'idée va alors être de trouver une matrice $\textbf{X}$ qui va être \textit{proche dans un certain sens} de l'information contenue dans la matrice $\textbf{M}$ et qui va pouvoir s'écrire de manière factorisée :
+$$ \textbf{X} = \mathbf{LR} $$
+où $\mathbf{L} \in \mathbb{R}^{n_u\times r}$ et $\mathbf{R} \in \mathbb{R}^{r\times n_i}$ où $r$ est le nombre de facteurs latents que l'on recherche. Ainsi la ligne $u$ (resp. la colonne $i$) de la matrice $\mathbf{L}$ (resp. $\mathbf{R}$) représente la position dans l'espace des facteurs latents de l'utilisateur $u$ (resp. produit $i$). Le produit scalaire de ces deux vecteurs va donc représenter la propension de l'utilisateur $u$ a aimer le produit $i$. 
 
-$$ \textbf{X} = LR $$
-
-où $L \in \mathbb{R}^{n_u\times r}$ et $R \in \mathbb{R}^{r\times n_i}$ où $r$ est le nombre de facteurs latents que l'on recherche. Ainsi la ligne $u$ (resp. la colonne $i$) de la matrice $L$ (resp. $R$) va représenter la position dans l'espace des facteurs latents de l'utilisateur $u$ (resp. produit $i$). Le produit scalaire de ces deux vecteurs va donc représenter la propension de l'utilisateur $u$ a aimer le produit $i$. 
-
-Maintenant essayons de décrire de manière plus mathématique la notion de \textit{proche dans un certain sens de l'information contenue dans $\textbf{M}$}. Il va donc falloir déterminer une fonction de coût $f$ d'attache aux données sur la matrice $\textbf{X}$ en vue de se ramener à un problème classique d'optimisation. Une première idée serait de se dire que l'on pourrait écrire $f$ comme étant la somme des écarts quadratiques entre $X_{ui}$ et la note $M_{ui}$. On aurait alors :
+Essayons maintenant de décrire plus formellement la notion de proximité entre $\mathbf{X}$ et $\textbf{M}$. Il faut pour cela déterminer une fonction de coût $f$ d'attache aux données sur la matrice $\textbf{X}$ en vue de se ramener à un problème classique d'optimisation. Une première idée serait de se dire que l'on pourrait écrire $f$ comme étant la somme des écarts quadratiques entre $X_{ui}$ et la note $M_{ui}$. On aurait alors :
 
 $$ f(\textbf{X}) = \sum_{(u,i)\in\Omega}\Vert X_{ui}-M_{ui} \Vert^2 $$
 
-Cependant, avec cette représentation, on ne prend pas en compte le biais naturel qui existe dans nos données. En effet il est important de pouvoir modéliser le fait que certains utilisateurs sont plus sévères que d'autres pour noter les produits ou encore que certains produits sont parfois beaucoup mieux notés que la moyenne. Sans prendre en compte cela il devient difficile de modéliser les notes par un simple produit scalaire comme nous voulions le faire plus haut. Au lieu de représenter directement la note obtenue, on va préférer que le produit scalaire $X_{ui}$ représente l'écart à la note obtenue conte tenu du biais $b_{ui}$ que nous connaissons sur nos données :
+Cependant, avec cette représentation, on ne prend pas en compte le biais naturel qui existe dans nos données \cite{koren}. En effet il est important de pouvoir modéliser le fait que certains utilisateurs sont plus sévères que d'autres pour noter les produits ou encore que certains produits sont parfois beaucoup mieux notés que la moyenne. Sans prendre en compte cela il devient difficile de modéliser les notes par un simple produit scalaire comme nous voulions le faire plus haut. Au lieu de représenter directement la note obtenue, on va préférer que le produit scalaire $X_{ui}$ représente l'écart à la note obtenue conte tenu du biais $b_{ui}$ que nous connaissons sur nos données :
 
 $$b_{ui} = \mu + b_u  + b_i $$ 
-
-où $\mu$ est la moyenne totale des notes, $b_u$ est la moyenne des notes décernés par l'utilisateur $u$, et $b_i$ est la moyenne des notes obtenues par le produit $i$. Tel quel $b_{ui}$ est déjà une sorte d'estimateur de la note que va mettre l'utilisateur $u$ au produit $i$. On verra dans la suite qu'il peut être intéressant de comparer nos résultats à ce système de recommandation très naïf. Ainsi on va réécrire notre fonction de coût d'attache aux données:
+où $\mu$ est la moyenne totale des notes, $b_u$ est la moyenne des notes décernés par l'utilisateur $u$, et $b_i$ est la moyenne des notes obtenues par le produit $i$ (toutes deux calculées en terme d'écart par rapport à $\mu$). Tel quel $b_{ui}$ est déjà une sorte d'estimateur de la note que va mettre l'utilisateur $u$ au produit $i$. On verra dans la suite qu'il peut être intéressant de comparer nos résultats à ce système de recommandation très naïf. Ainsi on va réécrire notre fonction de coût d'attache aux données:
 
 $$ f(\textbf{X}) = \sum_{(u,i)\in\Omega}\Vert X_{ui}+\mu + b_u  + b_i-M_{ui} \Vert^2 $$
 
@@ -135,8 +132,6 @@ Finalement notre problème de détermination de facteur latents peut s'écrire d
 \label{objectif}
  \text{minimiser } \sum_{(u,i)\in\Omega}\Vert X_{ui}+\mu + b_u  + b_i-M_{ui} \Vert^2 + P(\textbf{X})
 \end{equation}
-
-
 où $P$ est une fonction de régularisation qui permet de contrôler la complexité de la matrice $\textbf{X}$. Dans la suite nous allons décrire et comparer les algorithmes que nous avons utilisé afin de résoudre ce problème.
 
 \section{Algorithmes}
@@ -170,7 +165,7 @@ X_{ui}^{t+1} = X_{ui}^t-\gamma_t\left(\nabla_Xl(X_{ui},M_{ui})+\nabla_XP(X_{ui})
 \end{equation}
 
 
-En se ramenant au cas particulier de l'équation \eqref{objectif}, on voit que l'étape de mise à jour peut s'exprimer comme une mise à jour sur la $u$-ème ligne $L_u$ de la matrice $L$ et sur la $i$-ème colonne $R_i$ de la matrice $R$. Dans notre implémentation nous avons choisi $P(X_{ui}) = \lambda\left(\Vert L_u \Vert_2^2 + \Vert R_i \Vert_2^2\right)$.
+En se ramenant au cas particulier de l'équation \eqref{objectif}, on voit que l'étape de mise à jour peut s'exprimer comme une mise à jour sur la $u$-ème ligne $L_u$ de la matrice $L$ et sur la $i$-ème colonne $R_i$ de la matrice $R$. Dans notre implémentation nous avons choisi un terme de régularisation $L^2$ classique \cite{koren}: $P(X_{ui}) = \lambda\left(\Vert L_u \Vert_2^2 + \Vert R_i \Vert_2^2\right)$.
 
 
 \begin{eqnarray}
@@ -188,9 +183,9 @@ Le processus stochastique des exemples tirés au cours des itérations de l'algo
 
 Ici les tirages sont fait avec remise. De la sorte, en espérant que l'ensemble d'apprentissage est assez riche au sens de la distribution qu'il vise à représenter, on peut considérer qu'à chaque itération, les exemples sont tirés en suivant la véritable distribution des données. Intuitivement, on s'attend alors bien à ce que l'agrégation de toutes ces gradients ponctuels \eqref{grad} se comportent comme la somme totale (gradient usuel).
 
-Des résultats de convergences ont été prouvés en supposant que le pas d'incrément $\gamma_t$ décroit suffisamment au cours des itérations. Le théorème de Robbins-Siegmund (1971) permet notamment de prouver la convergence presque sure de la méthode avec des hypothèses assez lâches.
+Des résultats de convergences ont été prouvés en supposant que le pas d'incrément $\gamma_t$ décroit suffisamment au cours des itérations. Le théorème de Robbins-Siegmund (1971) permet notamment de prouver la convergence presque sure de la méthode avec des hypothèses assez lâches \cite{bottouSGD}.
 
-Dans ce qui suit nous présentons une méthode qui permet de paralléliser cet algorithme afin de gagner du temps de calcul. On verra aussi que la méthode de tirage des exemples diffère de la méthode présentée ici. Nous appelons cette première méthode Simple Gradient Stochastique (SGD), et on s'efforcera de comparer ces deux approches.
+Dans ce qui suit nous présentons une méthode qui permet de paralléliser cet algorithme afin de réduire de manière drastique le temps de calcul. On verra aussi que la méthode de tirage des exemples diffère de la méthode présentée ici.
 
 \subsection{Algorithme parallélisé \jel }
 
@@ -198,7 +193,7 @@ Dans \cite{jelly}, les auteurs introduisent une version parallélisée de l'algo
 
 \subsubsection*{Tirage sans remise}
 
-Les équations de mise à jour \eqref{grad1} et \eqref{grad2} pour un couple d'indices $(u,i)$ affectent uniquement la $u$-ème ligne de $L$ et la $i$-ème colonne de $R$. Ainsi, deux de ces opérations pour des couples $(u,i)$ et $(u',i')$ tels que $u \neq u'$ et $i \neq i'$ sont totalement indépendantes: elles n'affectent pas les mêmes coefficients et peuvent être réalisées dans n'importe quel ordre, voire simultanément. C'est sur ce principe que repose l'algorithme \jel \cite{jelly}. Pour cela, le tirage des indices se fait \emph{sans remise}, contrairement à l'algorithme du gradient stochastique simple, et nous appellerons \emph{époque} le fait de parcourir une fois l'ensemble des données. Cet algorithme, similaire au gradient stochastique avec remise, a déjà été introduit sous le nom de descente de (sous-)gradient "incrémental" \cite{nedic}. Dans notre contexte, le tirage sans remise est plus une nécessité pratique qu'un véritable choix théorique: il est nécessaire de connaître à chacune de ces époques la séquence complète des indices à traiter afin de pouvoir paralléliser les opérations qui peuvent l'être.
+Les équations de mise à jour \eqref{grad1} et \eqref{grad2} pour un couple d'indices $(u,i)$ affectent uniquement la $u$-ème ligne de $L$ et la $i$-ème colonne de $R$. Ainsi, deux de ces opérations pour des couples $(u,i)$ et $(u',i')$ tels que $u \neq u'$ et $i \neq i'$ sont totalement indépendantes: elles n'affectent pas les mêmes coefficients et peuvent être réalisées dans n'importe quel ordre, voire simultanément. C'est sur ce principe que repose l'algorithme \jel \cite{jelly}. Pour cela, le tirage des indices se fait \emph{sans remise}, contrairement à l'algorithme du gradient stochastique simple, et nous appellerons \emph{époque} le fait de parcourir une fois l'ensemble des données. La version simple du gradient stochastique sans remise a déjà été introduit sous le nom de descente de (sous-)gradient "incrémental" \cite{nedic_base}. Dans notre contexte, le tirage sans remise est plus une nécessité pratique qu'un véritable choix théorique: il est nécessaire de connaître à chacune de ces époques la séquence complète des indices à traiter afin de pouvoir paralléliser les opérations qui peuvent l'être.
 
 Un véritable tirage sans remise se ferait via la sélection, avec une loi uniforme, d'une permutation sur $\Omega$. Cependant, une telle permutation peut rapidement devenir encombrante en mémoire et gloutonne en temps de calcul. Les auteurs de \jel  choisissent donc de tirer une permutation $\pi_u$ sur les utilisateurs et une permutation $\pi_i$ sur les items, et de sélectionner la permutation sur les couples $(\pi_u,\pi_i)$. Il est évident que l'on est loin de la loi uniforme: par exemple, en admettant que tous les utilisateurs et tous les items sont présents dans $\Omega$, il y a $(n_un_i)!$ permutations possibles sur $\Omega$, tandis qu'il existe seulement $n_u!n_i!$ de la forme $(\pi_u,\pi_i)$, ce qui est bien moindre. Si en pratique on s'attend à ce que cela ne fasse pas une grande différence, cela rend l'éventuelle analyse théorique d'un tel algorithme relativement subtile.
 
@@ -246,7 +241,7 @@ Nous présenterons nos résultats sous deux aspects. La première partie concern
 \subsubsection*{Fonction objectif}
 Dans un premier temps, nous comparons la convergence des deux algorithmes en examinant la fonction objectif \eqref{objectif}. Puisque \jel ne permet de calculer cette fonction qu'entre chaque époque, nous n'enregistrons également cette valeur qu'aux itérations multiples de $|\Omega|$ pour l'algorithme simple SGD. Rappelons que la seule différence entre les deux algorithmes est alors le tirage des indices, avec ou sans remise. Ces résultats sont présentés Figure \ref{obj_samp}. On constate que, toutes proportions gardées, il y a extrêmement peu de différence entre les deux approches, même en échelle logarithmique. Néanmoins, si l'on supprime la toute première valeur de la fonction objectif (avant l'exécution des algorithmes) et que l'on agrandit les courbes, \jel obtient des performances légèrement meilleures; dans le cas présent il parvient même à rattraper son retard après une époque. Ce comportement a été systématiquement observé dans toutes les simulations, et contredit empiriquement l'avantage théorique donné au tirage avec remise.
 
-\begin{figure}
+\begin{figure}[h]
 \centering
 \includegraphics[width=0.45\textwidth]{fig/obj_samp1}
 \includegraphics[width=0.45\textwidth]{fig/obj_samp2}
@@ -256,7 +251,7 @@ Dans un premier temps, nous comparons la convergence des deux algorithmes en exa
 
 Il est également intéressant d'examiner la vitesse de convergence en fonction du pas de gradient $\gamma$ (Fig. \ref{obj_gamma}). Comme attendu, plus celui-ci est grand, plus la convergence est rapide. Néanmoins, il faut bien entendu être prudent: passé une certaine valeur (environ 0.4 dans nos simulations), l'algorithme ne converge plus et souvent les valeurs explosent à l'infini.
 
-\begin{figure}
+\begin{figure}[h]
 \centering
 \includegraphics[width=0.5\textwidth]{fig/obj_gamma}
 \caption{Convergence de \jel en fonction de $\gamma$.}
@@ -264,13 +259,13 @@ Il est également intéressant d'examiner la vitesse de convergence en fonction 
 \end{figure}
 
 \subsubsection*{Temps de calcul}
-Dans la figure \ref{time}, nous comparons le temps d'exécution par époque des deux algorithmes, en fonction du nombre de processus $p$ pour \jel. Les simulations ont été réalisées sur un processeur Intel i7 49-30K possédant 6 cœurs (12 en \emph{hyper-threading}). Pour comparaison, nous indiquons également le temps d'exécution du processus d'ordonnancement des données. Nous constatons qu'en effet sur nos simulations il n'est pas nécessaire de dévouer plus d'un processus à cette tâche, ce n'est pas le facteur limitant. Concernant \jel, un minimum est atteint pour $p=5$, correspondant à $6$ processus parallèles (en comptant le processus de permutation), le nombre de coeurs réels du processeur. De manière surprenante, l'\emph{hyper-threading} ne permet pas de réduire le temps de calcul. Nous supposons que le gain de temps que ce procédé apporterait est plutôt minime à ces échelles de temps, et compensé par les opérations auxiliaires: création du processus, assignation des variables etc. Enfin, on constate que même pour $p=1$ \jel est bien plus rapide que SGD; cela est dû au fait qu'à chaque itération SGD doit tirer un indice aléatoire puis aller chercher en mémoire les données correspondantes, tandis que \jel parcoure linéairement les données permutées, ce qui permet des accès mémoire bien plus rapides (utilisation du cache, etc.). Cela est probablement également dû au langage utilisé, \textsc{Python}, et à ses diverses optimisations lors de parcours simples de tableaux, listes, etc. Un langage plus bas-niveau permettrait de mieux quantifier ces différences.
+Dans la figure \ref{time}, nous comparons le temps d'exécution par époque des deux algorithmes, en fonction du nombre de processus $p$ pour \jel. Les simulations ont été réalisées sur un processeur Intel i7 49-30K possédant 6 cœurs (12 en \emph{hyper-threading}). Pour comparaison, nous indiquons également le temps d'exécution du processus d'ordonnancement des données. Nous constatons qu'en effet sur nos simulations il n'est pas nécessaire de dévouer plus d'un processus à cette tâche, ce n'est pas le facteur limitant. Concernant \textsc{Jellyfish}, un minimum est atteint pour $p=5$, correspondant à $6$ processus parallèles (en comptant le processus de permutation), le nombre de coeurs réels du processeur. De manière surprenante, l'\emph{hyper-threading} ne permet pas de réduire le temps de calcul. Nous supposons que le gain de temps que ce procédé apporterait est plutôt minime à ces échelles de temps, et compensé par les opérations auxiliaires: création du processus, assignation des variables etc. Enfin, on constate que même pour $p=1$ \jel est bien plus rapide que SGD; cela est dû au fait qu'à chaque itération SGD doit tirer un indice aléatoire puis aller chercher en mémoire les données correspondantes, tandis que \jel parcoure linéairement les données permutées, ce qui permet des accès mémoire bien plus rapides (utilisation du cache, etc.). Cela est probablement également dû au langage utilisé, \textsc{Python}, et à ses diverses optimisations lors de parcours simples de tableaux, listes, etc. Un langage plus bas-niveau permettrait de mieux quantifier ces différences.
 
-Les tests ont également été réalisés sur la base à 10 millions de notations. Le temps d'exécution est tout de même supérieur à une simple multiplication par 10 du temps précédent, la quantité de mémoire à gérer étant plus importante les accès mémoire sont moins rapides. En particulier, le temps que demande l'ordonnancement des données ne s'accroît pas linéairement, et il peut devenir avantageux de dédier deux processus à cette tâche, selon les différents $r$... Nous n'avons pas eu accès suffisamment longtemps à la machine capable de gérer cette base de données importante pour pouvoir conclure définitivement.
+Les tests ont également été réalisés sur la base à 10 millions de notations. Le temps d'exécution est tout de même supérieur à une simple multiplication par 10 du temps précédent (il est plutôt de 15 à 20 fois supérieur), la quantité de mémoire à gérer étant plus importante et les accès mémoire moins rapides. En particulier, le temps que demande l'ordonnancement des données ne s'accroît pas linéairement, et il peut devenir avantageux de dédier deux processus à cette tâche comme décrit précédemment, selon les différents $r$... Une conclusion définitive demanderait une étude plus poussée et plus longue.
 
-En résumé, \jel est de $5$ à $6$ fois plus rapide que SGD pour des résultats équivalents, sur la base à 1 million d'entrées. Pour 20 époques et $r=50$, il demande environ 4-5 minutes sur la base à 1 million d'entrée et un peu plus d'une heure et 15 minutes sur la base à 10 millions. Nous n'avons pas testé SGD sur la grande base de données, cependant puisque le temps dédié aux accès mémoire ne s'accroît pas linéairement et que SGD en possède un grand nombre non-optimisés, nous supposons que l'algorithme SGD est encore considérablement plus lent.
+En résumé, \jel est de $5$ à $6$ fois plus rapide que SGD pour des résultats équivalents, sur la base à 1 million d'entrées. Pour 20 époques et $r=50$, il demande environ 4-5 minutes sur la base à 1 million d'entrée et un peu plus d'une heure et 20 minutes sur la base à 10 millions. Nous n'avons pas testé SGD sur la grande base de données, cependant puisque le temps dédié aux accès mémoire ne s'accroît pas linéairement et que SGD en possède un grand nombre non-optimisés, nous supposons que l'algorithme SGD est encore considérablement plus lent.
 
-\begin{figure}
+\begin{figure}[h]
 \centering
 \includegraphics[width=0.7\textwidth]{fig/time_jel1}
 \caption{Temps d'exécution par époque en fonction de $p$, pour $r=30$. Le temps d'exécution d'une époque de SGD est indiqué, ainsi que le temps pris par le processus de permutation des données.}
@@ -301,7 +296,7 @@ En résumé, \jel est de $5$ à $6$ fois plus rapide que SGD pour des résultats
 
 Le premier point important est de constituer une base de test afin d'évaluer notre algorithme. Lors de la constitution de cette base de tests, il faut prendre soin de ne pas retirer toutes les notes d'un même utilisateur ou toutes les notes d'un même film. Dans le cas contraire on perd toute l'information sur cet utilisateur ou sur ce film. La stratégie que nous avons adopté est de retirer $n$ notes par utilisateurs en espérant que toutes les notes d'un même film ne soient pas retirées (une vérification avant chaque test est nécessaire). En pratique $n=1,2$, ce qui nous permet d'avoir une base de test assez conséquente.
 
-\subsubsection*{Critère d'évaluation}
+\subsubsection*{Critères d'évaluation}
 
 \paragraph{RMSE}
 
@@ -324,7 +319,14 @@ Enfin un dernier critère d'évaluation a été d'essayer de visualiser la perti
 
 \subsubsection*{Résultats}
 
-Dans le Tableau \ref{RMSE_vs_r} on donne le RMSE obtenu pour différentes valeurs de $r$. On rappelle que $r$ est le rang de la matrice $X$, ou encore la dimension de l'espace des facteurs latents. On rappelle aussi que ce résultat est à comparer au RMSE naïf qui vaut $0.9598$ pour la base à 1 million d'entrées, et $0.9062$ sur la base à 10 millions d'entrées.
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.5\textwidth]{fig/rmse_r}
+\caption{RMSE obtenu par \jel sur la base à 1 million d'entrées en fonction de $r$.}
+\label{rmse_r}
+\end{figure}
+
+La Figure \ref{rmse_r} donne le RMSE obtenu pour différentes valeurs de $r$. On rappelle que $r$ est le rang de la matrice $X$, ou encore la dimension de l'espace des facteurs latents. On constate qu'après une décroissance rapide, le RMSE se stabilise, laissant entendre qu'un nombre réduit de facteurs suffit à capturer la majorité des caractéristiques des films et des utilisateurs. Le Tableau \ref{RMSE_vs_r} confirme ces résultats, en présentant pour les deux bases de données très peu de différence entre $r=50$ et $r=100$. On rappelle que ces résultats sont à comparer au RMSE naïf qui vaut $0.9598$ pour la base à 1 million d'entrées, et $0.9062$ sur la base à 10 millions d'entrées. Ces deux scores ont été réduit de $0.05$, ce qui est honorable au vu de la simplicité de nos algorithmes et à la quantité déjà importante d'information contenue dans le biais.
 
 \begin{table}[h]
 \begin{center}
@@ -334,16 +336,17 @@ Dans le Tableau \ref{RMSE_vs_r} on donne le RMSE obtenu pour différentes valeur
   	\hline
   	\textbf{Algorithme} & SGD & \jel & SGD & \jel & SGD & \jel & Moyenne (naïf) \\
   	\hline
-  	\textbf{RMSE (1M)}  & 0.9146  & TOFILL & 0.9114 & TOFILL & 0.9042 & TOFILL & 0.9598\\
+  	\textbf{RMSE (1M)}  & 0.9048  & 0.9023 & 0.8981 & 0.8999 & 0.8992 & 0.8997 & 0.9598\\
   	\hline
-  	\textbf{RMSE (10M)}  & X  & 0.8698 & X & 0.8652 & X & TOFILL & 0.9062\\
+  	\textbf{RMSE (10M)}  & X  & 0.8592 & X & 0.8581 & X & 0.8574 & 0.9062\\
   	\hline
 \end{tabular}
 \end{center}
 \caption{\label{RMSE_vs_r} Valeurs du RMSE pour différentes valeurs de $r$}
 \end{table}
 
-En Figure \ref{histo_best}, on donne l'histogramme des erreurs obtenu pour le plus bas RMSE. En bleu, on visualise les prévisions de notre algorithme d'optimisation et en vert on peut voir les prédictions de la moyenne simple ($\textbf{X}=0$). 
+En Figure \ref{histo_best}, on donne l'histogramme des erreurs obtenu pour le plus bas RMSE. En bleu, on visualise les prévisions de notre algorithme d'optimisation et en vert on peut voir les prédictions de la moyenne simple ($\textbf{X}=0$). On constate en effet que l'algorithme optimisé possède une plus grande proportion de faibles erreurs, et moins de "grandes" erreurs. Globalement, les deux histogrammes représentent des variables gaussiennes centrées, et celle correspondant à l'algorithme d'optimisation possède une variance plus faible que celle qui représente la moyenne naïve.
+
 
 % A remplacer par le meilleur!
 
@@ -359,20 +362,11 @@ En Figure \ref{histo_best}, on donne l'histogramme des erreurs obtenu pour le pl
 % \end{minipage}
 %\end{figure}
 
-\begin{figure}[ht!]
+\begin{figure}[h]
 \begin{center}
-\includegraphics[height=5cm]{fig/hist.eps}
-\caption{\label{histo_best} Histogramme d'erreur}
-\end{center}
-\end{figure}
-
-
-En Figure \ref{graph_best} on donne pour chaque note (comprise entre 1 et 5) la proportion de notes où notre algorithme ne s'est pas trompé pour le meilleur RMSE. En comparaison on donne aussi la prédiction de l'algorithme naïf. Ce graphique permet une visualisation un peu plus parlante des résultats de notre algorithme en vue de créer un système de recommandation. 
-
-\begin{figure}[ht!]
-\begin{center}
-\includegraphics[height=5cm]{fig/graph_best.eps}
-\caption{\label{graph_best} Proportion de bonnes prédiction en fonction de chaque note}
+\includegraphics[height=5cm]{fig/histo}
+\includegraphics[height=5cm]{fig/histo10m}
+\caption{\label{histo_best} Histogrammes d'erreur. Gauche: 1M, droite: 10M}
 \end{center}
 \end{figure}
 
@@ -394,18 +388,31 @@ Une manière de visualiser les résultats est de chercher les points extrémaux 
 
 \subsubsection*{Commentaires}
 
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=0.49\textwidth]{fig/prop}
+\includegraphics[width=0.49\textwidth]{fig/prop10m}
+\caption{\label{graph_best} Proportion de bonnes prédictions en fonction de chaque note. Gauche: 1M, droite: 10M.}
+\end{center}
+\end{figure}
+
 Dans cette partie nous apportons un regard critique sur les résultats présentés précédemment en essayant de replacer cela dans le contexte de la recommandation. 
 
 % Partie positive
-Comme nous pouvons le voir dans le tableau \ref{RMSE_vs_r}, notre algorithme parvient à battre la méthode naïve qui reviendrait à prédire n'importe quelle note par la moyenne des notes passées. De plus dans le but de réaliser un algorithme de recommandation on a envie que notre algorithme prédise de manière efficace surtout les notes extrêmes afin, d'une part de proposer des produits à l'utilisateur dont on est sûr qu'ils vont plaire, et d'autre part d'être en mesure de bien prévoir ce que l'utilisateur va détester. En ce sens le graphique de la Figure \ref{graph_best} est intéressant parce qu'on voit que notre algorithme est bien plus efficace que la méthode naïve pour ce qui est de prédire les notes extrêmes. Pour la note 5, nous avons 74 $\%$ de bonnes prédictions avec notre méthode contre 59 $\%$ pour la méthode naïve. Pour la note 1 nous avons 82 $\%$ de bonnes prédictions avec notre approche contre 56 $\%$ pour la prédiction par la moyenne. En ce sens nous pouvons dire que l'approche étudiée ici fonctionne assez bien pour faire de la recommandation. Il semblerait donc que l'on réussisse à capter de l'information sur les goûts et les préférence des utilisateurs.
+Comme nous pouvons le voir dans le tableau \ref{RMSE_vs_r}, notre algorithme parvient à surpasser la méthode naïve qui reviendrait à prédire n'importe quelle note par la moyenne des notes passées. De plus dans le but de réaliser un algorithme de recommandation on a envie que notre algorithme prédise de manière efficace surtout les notes extrêmes afin, d'une part de proposer des produits à l'utilisateur dont on est sûr qu'ils vont plaire, et d'autre part d'être en mesure de bien prévoir ce que l'utilisateur va détester. En Figure \ref{graph_best} on donne pour chaque note (comprise entre 1 et 5) la proportion de notes où notre algorithme ne s'est pas trompé. En comparaison on donne aussi la prédiction de l'algorithme naïf. On observe bien la plus forte tendance de l'algorithme naïf à se concentrer autour de la moyenne, autour de 3 et 4, notes pour lesquelles il est meilleur que l'algorithme optimisé (ce qui signifie simplement qu'il a tendance à capturer quasiment tous les 3 et 4, puisque recommandant plus souvent ces notes). A l'inverse, il se montre incapable de capturer les notes extrêmes, là où l'algorithme optimisé se montre le meilleur, prouvant effectivement que ce dernier décèle bien les tendances fortes chez les utilisateurs et leurs goûts les plus prononcés. En ce sens nous pouvons dire que cette approche est bien adaptée à un objectif de recommandation.
 
 %Partie négative
-Cependant on est aussi en droit de se demander si, du point de vue de l'utilisateur, l'amélioration de prédiction est réellement intéressante. En reprenant l'exemple du projet Netflix, on peut noter que la bonne prédiction de notes au dessus de 3 étoiles est de 98.9 $\%$ pour l'algorithme qui a décroché le prix de 1 million de dollar contre 94.4 $\%$ pour l'algorithme naïf. On peut alors se demander si l'amélioration de l'expérience de l'utilisateur est vraiment intéressante. Beaucoup de progrès reste encore à faire afin de comprendre et de modéliser les goûts humains. Cette idée permet de relativiser quant aux résultats modestes de nos algorithmes.
+Cependant on est aussi en droit de se demander si, du point de vue de l'utilisateur et de la recommandation, l'amélioration de prédiction est réellement intéressante. En reprenant l'exemple du projet Netflix, on peut noter que la bonne prédiction de notes au dessus de 3 étoiles est de 98.9 $\%$ pour l'algorithme qui a décroché le prix de 1 million de dollar contre 94.4 $\%$ pour l'algorithme naïf \cite{blog}. On peut alors se demander si l'amélioration de l'expérience de l'utilisateur est vraiment intéressante. Beaucoup de progrès reste encore à faire afin de comprendre et de modéliser les goûts humains.
 
+%\newpage
 \section*{Conclusion}
+Le traitement de bases de données de très grande dimension et les systèmes de recommandation représentent un domaine en pleine effervescence aussi bien d'un point de vue expérimental que théorique. Le challenge Netflix s'est finalement révélé être une stimulation importante de la recherche de ces quelques dernières années sur le sujet, et représente bien les enjeux industriels considérables derrière ces travaux. Une lumière nouvelle est jetée sur des algorithmes déjà introduits il y a une quinzaine d'années tel que la descente de gradient stochastique, et ceux-ci connaissent un regain d'intérêt aussi bien pratique que mathématique.
 
-\newpage
+Lors de ce projet, nous avons implémenté deux versions de la descente de gradient stochastique qui diffèrent principalement par le temps de calcul bien moindre de la version parallélisée, ce qui est une donnée nouvelle mais essentielle lorsque l'on considère le traitement de grande bases de données. Ces algorithmes ont été testés sur des bases de données relativement importantes pour lesquelles le temps de calcul est resté tout à fait raisonnable, en particulier pour l'algorithme \jel qui est jusqu'à six fois plus rapide que la version simple. Nous sommes conscients qu'une étude plus poussée de cet algorithme serait requise afin d'en comprendre vraiment tous les mécanismes, cela demanderait cependant plus de temps et du matériel plus performant. 
 
-\bibliographystyle{unsrt}
+Cependant la pertinence des algorithmes dans un objectif de recommandation a bien été observée, malgré les différences parfois faibles en terme d'erreurs avec une approche naïve. Néanmoins il est possible de questionner les résultats réels du point de vue de l'utilisateur, et la compréhension des liens existant entre résultats mathématiques et mise en œuvre industrielle reste à développer.
+
+%\newpage
+\bibliographystyle{unsrturl}
 \bibliography{biblio}
 \end{document}
